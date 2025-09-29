@@ -5,6 +5,7 @@ import se.ifmo.origin_backend.model.OrganizationType;
 import java.time.LocalDate;
 
 public record OrgFullDTO(
+        Integer id,
         String name,
         CoordinatesDTO coordinates,
         LocalDate creationDate,
@@ -16,6 +17,7 @@ public record OrgFullDTO(
         AddressDTO postalAddress
 ) {
     public OrgFullDTO(
+            Integer id,
             String name,
             Long coordX, Long coordY,
             LocalDate creationDate,
@@ -27,6 +29,7 @@ public record OrgFullDTO(
             String street
     ) {
         this(
+                id,
                 name,
                 new CoordinatesDTO(coordX, coordY),
                 creationDate,

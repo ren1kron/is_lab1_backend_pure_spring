@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface OrganizationRepo extends JpaRepository<Organization, Integer> {
     @Query("""
     select new se.ifmo.origin_backend.dto.OrgFullDTO(
+        o.id,
         o.name,
         c.x, c.y,
         o.creationDate,
@@ -33,6 +34,7 @@ public interface OrganizationRepo extends JpaRepository<Organization, Integer> {
 
     @Query("""
     select new se.ifmo.origin_backend.dto.OrgFullDTO(
+        o.id,
         o.name,
         c.x, c.y,
         o.creationDate,

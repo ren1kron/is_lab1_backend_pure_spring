@@ -85,6 +85,7 @@ public class OrganizationService {
 
     private OrgFullDTO orgToFullDto(Organization o) {
         return new OrgFullDTO(
+                o.getId(),
                 o.getName(),
                 new CoordinatesDTO(o.getCoordinates().getX(), o.getCoordinates().getY()),
                 o.getCreationDate(),

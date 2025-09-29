@@ -23,6 +23,9 @@ dependencies {
 	implementation("org.springframework:spring-context:6.2.11")
 	implementation("org.springframework:spring-tx:6.2.11")
 	implementation("org.springframework:spring-orm:6.2.11")
+	implementation("org.springframework.security:spring-security-core:6.5.5")
+	implementation("org.springframework.security:spring-security-web:6.5.5")
+	implementation("org.springframework.security:spring-security-config:6.5.5")
 	implementation("org.springframework.data:spring-data-jpa:3.5.4")
 
 	// JSON for @RestController responses
@@ -48,8 +51,8 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok:1.18.42")
 
 	// Logs
-//	implementation("org.slf4j:slf4j-api:2.0.13")
-//	runtimeOnly("ch.qos.logback:logback-classic:1.5.7")
+	implementation("org.slf4j:slf4j-api:2.0.13")
+	runtimeOnly("ch.qos.logback:logback-classic:1.5.7")
 
 	testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
 }
@@ -57,3 +60,8 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+tasks.withType<JavaCompile> {
+	options.compilerArgs.add("-parameters")
+}
+
