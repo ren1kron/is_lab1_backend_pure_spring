@@ -17,29 +17,29 @@ public class LocationService {
     private final LocationRepo repo;
 
     @Transactional(readOnly = true)
-    public List<Location> getLocations() {
+    public List<Location> getAll() {
         return repo.findAll();
     }
 
     @Transactional(readOnly = true)
-    public Location getLocationById(Long id) {
+    public Location getById(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new NotFoundElementWithIdException("Location", id));
     }
 
     @Transactional
-    public void addLocation(LocationDTO dto) {
+    public Location create(LocationDTO dto) {
         var loc = new Location();
         loc.setX(dto.x());
         loc.setY(dto.y());
         loc.setZ(dto.z());
         loc.setName(dto.name());
 
-        repo.save(loc);
+        return repo.save(loc);
     }
 
     @Transactional
-    public void updateLocation(Long id, LocationDTO dto) {
+    public Location update(Long id, LocationDTO dto) {
         var loc = repo.findById(id)
                 .orElseThrow(() -> new NotFoundElementWithIdException("Location", id));
 
@@ -48,11 +48,11 @@ public class LocationService {
         loc.setZ(dto.z());
         loc.setName(dto.name());
 
-        repo.save(loc);
+        return repo.save(loc);
     }
 
     @Transactional
-    public void deleteLocation(Long id) {
+    public void delete(Long id) {
         if (repo.findById(id).isEmpty())
             throw new NotFoundElementWithIdException("Location", id);
         repo.deleteById(id);

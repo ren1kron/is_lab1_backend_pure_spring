@@ -34,7 +34,7 @@ public class SecurityConfig {
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setExposedHeaders(List.of("Location"));
-        cfg.setAllowCredentials(true); // only if you need cookies/Authorization
+//        cfg.setAllowCredentials(true); // only if cookies/Authorization needed
         cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -5,11 +5,13 @@ import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.AllArgsConstructor;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -17,19 +19,26 @@ import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
+@EnableWebMvc
 @ComponentScan(basePackages = "se.ifmo.origin_backend")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "se.ifmo.origin_backend.repo")
 
 @AllArgsConstructor
 @PropertySource("classpath:application.properties")
-public class RootConfig {
+public class RootConfig implements WebMvcConfigurer {
 
     private final Environment env;
 
@@ -45,13 +54,6 @@ public class RootConfig {
 
     }
 
-//    @Bean
-//    public DataSource dataSource() {
-//        JndiDataSourceLookup lookup = new JndiDataSourceLookup();
-//        lookup.setResourceRef(true);
-//        return lookup.getDataSource("jdbc/AppDS");
-//    }
-
     @Bean(name = "entityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(DataSource ds) {
         var vendor = new EclipseLinkJpaVendorAdapter();
@@ -61,7 +63,7 @@ public class RootConfig {
         var em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(ds);
         em.setJpaVendorAdapter(vendor);
-        em.setPackagesToScan("se.ifmo.origin_backend.model");
+        em.setPackagesToScan("se.ifmo.origin_backend");
 
         Properties jpa = new Properties();
         jpa.put(PersistenceUnitProperties.WEAVING,
@@ -70,6 +72,10 @@ public class RootConfig {
                 env.getProperty("jpa.ddl.generation", "create-or-extend-tables"));
         jpa.put(PersistenceUnitProperties.LOGGING_LEVEL,
                 env.getProperty("jpa.logging.level", "FINE"));
+        jpa.put(PersistenceUnitProperties.DDL_GENERATION_MODE,
+                env.getProperty("jpa.ddl.generation_output_mode","database"));
+        jpa.put(PersistenceUnitProperties.VALIDATION_MODE, "CALLBACK");
+        jpa.put(PersistenceUnitProperties.TARGET_DATABASE, "org.eclipse.persistence.platform.database.PostgreSQLPlatform");
         em.setJpaProperties(jpa);
 
         return em;
@@ -85,9 +91,36 @@ public class RootConfig {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
-    // Only needed if you use @Value("${...}") anywhere in the app.
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    // === Bean validation wiring ===
+    @Bean
+    public MessageSource messageSource() {
+        var ms = new ReloadableResourceBundleMessageSource();
+        ms.setBasename("classpath:messages");
+        ms.setDefaultEncoding("UTF-8");
+        return ms;
+    }
+
+    @Bean
+    public LocalValidatorFactoryBean validator(MessageSource messageSource) {
+        var v = new LocalValidatorFactoryBean();
+        v.setValidationMessageSource(messageSource);
+        return v;
+    }
+
+    @Override
+    public Validator getValidator() {
+        return validator(messageSource());
+    }
+
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor(LocalValidatorFactoryBean validator) {
+        var p = new MethodValidationPostProcessor();
+        p.setValidator(validator);
+        return p;
     }
 }

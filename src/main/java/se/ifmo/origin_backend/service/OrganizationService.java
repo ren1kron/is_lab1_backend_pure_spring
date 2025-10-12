@@ -1,6 +1,7 @@
 package se.ifmo.origin_backend.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.*;
@@ -20,38 +21,43 @@ public class OrganizationService {
     private final CoordinatesRepo cordRepo;
     private final AddressRepo addrRepo;
     private final LocationRepo locRepo;
+    private final SimpMessagingTemplate broker;
+
+    public record OrgEvent(String type, int id) {}
 
     @Transactional(readOnly = true)
-    public List<OrgFullDTO> getOrganizations() {
+    public List<OrgFullDTO> getAll() {
         return orgRepo.findAllFull();
     }
 
     @Transactional(readOnly = true)
-    public OrgFullDTO getOrganizationById(int id) {
+    public OrgFullDTO getById(int id) {
         return orgRepo.findFullById(id)
                 .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
     }
 
     @Transactional
-    public void addOrganization(OrgCreateDTO dto) {
+    public void create(OrgCreateDTO dto) {
         var org = dtoToOrg(dto);
-
-        orgRepo.save(org);
+        var saved = orgRepo.save(org);
+        broker.convertAndSend("/topic/org-changed", new OrgEvent("CREATED", saved.getId()));
     }
 
     @Transactional
-    public void updateOrganization(int id, OrgCreateDTO dto) {
+    public void update(int id, OrgCreateDTO dto) {
         Organization org = orgRepo.findById(id)
                 .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
 
         dtoToOrg(dto, org);
-        orgRepo.save(org);
+        var saved = orgRepo.save(org);
+        broker.convertAndSend("/topic/org-changed", new OrgEvent("UPDATED", saved.getId()));
     }
 
     @Transactional
-    public void deleteOrganization(int id) {
+    public void delete(int id) {
         if (orgRepo.findById(id).isEmpty()) throw new NotFoundElementWithIdException("Organization", id);
         orgRepo.deleteById(id);
+        broker.convertAndSend("/topic/org-changed", new OrgEvent("CREATED", id));
     }
 
     @Transactional

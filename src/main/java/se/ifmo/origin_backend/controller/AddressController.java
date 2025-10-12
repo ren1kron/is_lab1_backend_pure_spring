@@ -1,5 +1,7 @@
 package se.ifmo.origin_backend.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.AddressDTO;
 import se.ifmo.origin_backend.model.Address;
@@ -17,27 +19,30 @@ public class AddressController {
     }
 
     @GetMapping
-    public List<Address> getAllAddresses() {
-        return service.getAddresses();
+    public List<Address> getAll() {
+        return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public Address getAddressById(@PathVariable Long id) {
-        return service.getAddressById(id);
+    public Address getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
     @PostMapping
-    public void addAddress(@RequestBody AddressDTO dto) {
-        service.addAddress(dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Address create(@RequestBody @Valid AddressDTO dto) {
+        return service.create(dto);
     }
 
     @PutMapping("/{id}")
-    public void updateAddress(@PathVariable Long id, @RequestBody AddressDTO dto) {
-        service.updateAddress(id, dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Address update(@PathVariable Long id, @RequestBody @Valid AddressDTO dto) {
+        return service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAddress(@PathVariable Long id) {
-        service.deleteAddress(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 }

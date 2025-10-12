@@ -1,6 +1,8 @@
 package se.ifmo.origin_backend.controller;
 
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.LocationDTO;
 import se.ifmo.origin_backend.model.Location;
@@ -19,27 +21,30 @@ public class LocationController {
     }
 
     @GetMapping
-    public List<Location> getAllLocations() {
-        return service.getLocations();
+    public List<Location> getAll() {
+        return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public Location getLocationById(@PathVariable Long id) {
-        return service.getLocationById(id);
+    public Location getById(@PathVariable Long id) {
+        return service.getById(id);
     }
 
     @PostMapping
-    public void addLocation(@RequestBody LocationDTO dto) {
-        service.addLocation(dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Location create(@RequestBody @Valid LocationDTO dto) {
+        return service.create(dto);
     }
 
     @PutMapping("/{id}")
-    public void updateLocation(@PathVariable Long id, @RequestBody LocationDTO dto) {
-        service.updateLocation(id, dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Location update(@PathVariable Long id, @Valid @RequestBody LocationDTO dto) {
+        return service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteLocation(@PathVariable Long id) {
-        service.deleteLocation(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 }

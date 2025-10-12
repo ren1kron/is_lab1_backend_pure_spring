@@ -19,27 +19,27 @@ public class OrganizationController {
 
     @GetMapping
     public List<OrgFullDTO> getOrgranizations() {
-        return service.getOrganizations();
+        return service.getAll();
     }
 
     @GetMapping("/{id}")
     public OrgFullDTO getOrganizationById(@PathVariable int id) {
-        return service.getOrganizationById(id);
+        return service.getById(id);
     }
 
     @PostMapping
     public void addOrganization(@RequestBody OrgCreateDTO dto) {
-        service.addOrganization(dto);
+        service.create(dto);
     }
 
     @PutMapping("/{id}")
     public void updateOrganization(@PathVariable int id, @RequestBody OrgCreateDTO dto) {
-        service.updateOrganization(id, dto);
+        service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void deleteOrganization(@PathVariable int id) {
-        service.deleteOrganization(id);
+        service.delete(id);
     }
 
     @DeleteMapping

@@ -10,17 +10,10 @@ import org.springframework.web.servlet.DispatcherServlet;
 public class WebAppInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) {
-        AnnotationConfigWebApplicationContext rootCtx = new AnnotationConfigWebApplicationContext();
-        rootCtx.register(RootConfig.class);
-//        rootCtx.refresh();
-        servletContext.addListener(new ContextLoaderListener(rootCtx));
+        var appCtx = new AnnotationConfigWebApplicationContext();
+        appCtx.register(RootConfig.class, WebSocketConfig.class);
 
-        AnnotationConfigWebApplicationContext mvcCtx = new AnnotationConfigWebApplicationContext();
-        mvcCtx.register(WebMvcConfig.class);
-        mvcCtx.setParent(rootCtx);
-
-        ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher",
-                new DispatcherServlet(mvcCtx));
+        var dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(appCtx));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/api/*");
     }

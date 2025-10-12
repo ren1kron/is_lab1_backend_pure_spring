@@ -1,5 +1,7 @@
 package se.ifmo.origin_backend.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.CoordinatesDTO;
 import se.ifmo.origin_backend.model.Coordinates;
@@ -10,6 +12,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/coords")
 public class CoordinatesController {
+// TODO 1. переименовать add... в create (без названия, что сreate. и так понятно по контроллеру-сервису)
+//  2. Сделать так, чтобы post/put запросы возвращали что-то, что может понять успешность создания объекта (сам объект, либо его id, либо путь до него).
+//      лучшее решение – возвращать фул объект. Мы получаем отвалидированные сервером данные, которые показываем пользователю
+//  3.
 
     private final CoordinatesService service;
 
@@ -18,27 +24,30 @@ public class CoordinatesController {
     }
 
     @GetMapping
-    public List<Coordinates> getAllCoordinates() {
-        return service.getAllCoordinates();
+    public List<Coordinates> getAll() {
+        return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public Coordinates getCoordinatesById(@PathVariable long id) {
-        return service.getCoordinatesById(id);
+    public Coordinates getById(@PathVariable long id) {
+        return service.getById(id);
     }
 
     @PostMapping
-    public void addCoordinates(@RequestBody CoordinatesDTO dto) {
-        service.addCoordinates(dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Coordinates create(@Valid @RequestBody CoordinatesDTO dto) {
+        return service.create(dto);
     }
 
     @PutMapping("/{id}")
-    public void updateCoordinates(@PathVariable long id, @RequestBody CoordinatesDTO dto) {
-        service.updateCoords(id, dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public Coordinates update(@PathVariable long id, @RequestBody CoordinatesDTO dto) {
+        return service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCoordinates(@PathVariable Long id) {
-        service.deleteCoordinates(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 }

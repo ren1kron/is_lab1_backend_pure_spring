@@ -25,6 +25,8 @@ dependencies {
 	implementation("org.springframework:spring-orm:6.2.11")
 	implementation("org.springframework.security:spring-security-core:6.5.5")
 	implementation("org.springframework.security:spring-security-web:6.5.5")
+	implementation("org.springframework:spring-websocket:6.2.11")
+	implementation("org.springframework:spring-messaging:6.2.11")
 	implementation("org.springframework.security:spring-security-config:6.5.5")
 	implementation("org.springframework.data:spring-data-jpa:3.5.4")
 
@@ -38,6 +40,7 @@ dependencies {
 	implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
 	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 	implementation("org.eclipse.persistence:org.eclipse.persistence.jpa:4.0.8") // EclipseLink
+	implementation("org.hibernate.validator:hibernate-validator:9.0.1.Final")
 
 	// JDBC + HikariCP (or your pool)
 	implementation("com.zaxxer:HikariCP:7.0.2")

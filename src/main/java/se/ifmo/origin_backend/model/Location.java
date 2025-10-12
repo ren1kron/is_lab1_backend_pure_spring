@@ -3,6 +3,7 @@ package se.ifmo.origin_backend.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class Location {
     private float z;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(nullable = false, length = 63)
+    @Size(max = 63)
     private String name; // Поле не может быть null
 }
