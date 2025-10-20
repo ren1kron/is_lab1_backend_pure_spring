@@ -8,10 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "locations")
-public class Location {
+public class Location { // todo add unique constraints
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "loc_seq")

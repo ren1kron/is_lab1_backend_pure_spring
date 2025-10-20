@@ -1,5 +1,6 @@
 package se.ifmo.origin_backend.service;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -14,15 +15,15 @@ import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Address;
 import se.ifmo.origin_backend.repo.AddressRepo;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 public class AddressService {
     private final ApplicationEventPublisher events;
     private AddressRepo repo;
 
-    public record AddrEvent(String type, long id) {}
+    public record AddrEvent(
+        String type,
+        long id) {}
 
     @Transactional(readOnly = true)
     public List<Address> getAll() {
@@ -32,7 +33,9 @@ public class AddressService {
     @Transactional(readOnly = true)
     public Address getById(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new NotFoundElementWithIdException("Address", id));
+            .orElseThrow(() -> new NotFoundElementWithIdException(
+                "Address",
+                id));
     }
 
     @Transactional
@@ -51,7 +54,9 @@ public class AddressService {
     @Transactional
     public Address update(Long id, AddressDTO dto) {
         var addr = repo.findById(id)
-                .orElseThrow(() -> new NotFoundElementWithIdException("Address", id));
+            .orElseThrow(() -> new NotFoundElementWithIdException(
+                "Address",
+                id));
         addr.setStreet(dto.street());
         try {
             var saved = repo.saveAndFlush(addr);
@@ -64,11 +69,13 @@ public class AddressService {
 
     @Transactional
     public void delete(Long id) {
-        if (repo.findById(id).isEmpty()) throw new NotFoundElementWithIdException("Address", id);
+        if (repo.findById(id).isEmpty())
+            throw new NotFoundElementWithIdException("Address", id);
         repo.deleteById(id);
         events.publishEvent(new AddrEvent("DELETED", id));
     }
 }
+
 
 @Component
 @AllArgsConstructor

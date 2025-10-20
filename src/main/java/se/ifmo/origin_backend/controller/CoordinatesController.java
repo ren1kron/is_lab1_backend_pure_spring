@@ -1,21 +1,26 @@
 package se.ifmo.origin_backend.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.CoordinatesDTO;
 import se.ifmo.origin_backend.model.Coordinates;
 import se.ifmo.origin_backend.service.CoordinatesService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/coords")
 public class CoordinatesController {
-// TODO 1. переименовать add... в create (без названия, что сreate. и так понятно по контроллеру-сервису)
-//  2. Сделать так, чтобы post/put запросы возвращали что-то, что может понять успешность создания объекта (сам объект, либо его id, либо путь до него).
-//      лучшее решение – возвращать фул объект. Мы получаем отвалидированные сервером данные, которые показываем пользователю
-//  3.
+    // TODO 1. переименовать add... в create (без названия, что сreate. и так
+    // понятно по
+    // контроллеру-сервису)
+    // 2. Сделать так, чтобы post/put запросы возвращали что-то, что может понять
+    // успешность создания
+    // объекта (сам объект, либо его id, либо путь до него).
+    // лучшее решение – возвращать фул объект. Мы получаем отвалидированные сервером
+    // данные,
+    // которые показываем пользователю
+    // 3.
 
     private final CoordinatesService service;
 

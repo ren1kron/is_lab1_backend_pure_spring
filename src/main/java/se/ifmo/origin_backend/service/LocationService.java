@@ -1,5 +1,6 @@
 package se.ifmo.origin_backend.service;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,15 +14,15 @@ import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Location;
 import se.ifmo.origin_backend.repo.LocationRepo;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 public class LocationService {
     private final ApplicationEventPublisher events;
     private final LocationRepo repo;
 
-    public record LocEvent(String type, long id) {}
+    public record LocEvent(
+        String type,
+        long id) {}
 
     @Transactional(readOnly = true)
     public List<Location> getAll() {
@@ -31,7 +32,9 @@ public class LocationService {
     @Transactional(readOnly = true)
     public Location getById(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new NotFoundElementWithIdException("Location", id));
+            .orElseThrow(() -> new NotFoundElementWithIdException(
+                "Location",
+                id));
     }
 
     @Transactional
@@ -50,7 +53,9 @@ public class LocationService {
     @Transactional
     public Location update(Long id, LocationDTO dto) {
         var loc = repo.findById(id)
-                .orElseThrow(() -> new NotFoundElementWithIdException("Location", id));
+            .orElseThrow(() -> new NotFoundElementWithIdException(
+                "Location",
+                id));
 
         loc.setX(dto.x());
         loc.setY(dto.y());
@@ -71,10 +76,12 @@ public class LocationService {
     }
 }
 
+
 @Component
 @AllArgsConstructor
 class LocEventForwarder {
     private final SimpMessagingTemplate broker;
+
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(LocationService.LocEvent e) {
         broker.convertAndSend("/topic/loc-changed", e);

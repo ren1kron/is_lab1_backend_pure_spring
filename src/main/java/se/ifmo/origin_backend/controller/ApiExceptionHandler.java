@@ -1,6 +1,7 @@
 package se.ifmo.origin_backend.controller;
 
 import jakarta.validation.ConstraintViolationException;
+import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -11,14 +12,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import se.ifmo.origin_backend.error.DuplicateException;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 
-import java.util.Map;
-
 @RestControllerAdvice
 public class ApiExceptionHandler {
     @ExceptionHandler(NotFoundElementWithIdException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(NotFoundElementWithIdException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "not_found", "message", ex.getMessage()));
+            .body(Map.of("error", "not_found", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(DuplicateException.class)
@@ -29,8 +28,6 @@ public class ApiExceptionHandler {
         pd.setProperty("code", "ENTITY_DUPLICATE");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
     }
-
-
 
     // Fallback for DB-level unique violations (in case of race)
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -44,7 +41,8 @@ public class ApiExceptionHandler {
 
     // Validation errors (@NotNull, @Max, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ProblemDetail> handleValidation(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+    public ResponseEntity<ProblemDetail> handleValidation(
+        org.springframework.web.bind.MethodArgumentNotValidException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setTitle("Validation failed");
         pd.setDetail(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());

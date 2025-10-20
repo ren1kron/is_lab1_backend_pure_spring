@@ -1,13 +1,12 @@
 package se.ifmo.origin_backend.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.AddressDTO;
 import se.ifmo.origin_backend.model.Address;
 import se.ifmo.origin_backend.service.AddressService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/addrs")

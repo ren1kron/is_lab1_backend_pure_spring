@@ -3,6 +3,8 @@ package se.ifmo.origin_backend.config;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.Properties;
+import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.springframework.context.MessageSource;
@@ -15,11 +17,9 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -28,15 +28,11 @@ import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.sql.DataSource;
-import java.util.Properties;
-
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "se.ifmo.origin_backend")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "se.ifmo.origin_backend.repo")
-
 @AllArgsConstructor
 @PropertySource("classpath:application.properties")
 public class RootConfig implements WebMvcConfigurer {
@@ -52,7 +48,6 @@ public class RootConfig implements WebMvcConfigurer {
         cfg.setDriverClassName("org.postgresql.Driver");
         cfg.setMaximumPoolSize(env.getProperty("db.pool.max", Integer.class, 5));
         return new HikariDataSource(cfg);
-
     }
 
     @Bean(name = "entityManagerFactory")
@@ -67,14 +62,13 @@ public class RootConfig implements WebMvcConfigurer {
         em.setPackagesToScan("se.ifmo.origin_backend");
 
         Properties jpa = new Properties();
-        jpa.put(PersistenceUnitProperties.WEAVING,
-                env.getProperty("jpa.weaving", "false"));
-        jpa.put(PersistenceUnitProperties.DDL_GENERATION,
-                env.getProperty("jpa.ddl.generation", "create-or-extend-tables"));
-        jpa.put(PersistenceUnitProperties.LOGGING_LEVEL,
-                env.getProperty("jpa.logging.level", "FINE"));
-        jpa.put(PersistenceUnitProperties.DDL_GENERATION_MODE,
-                env.getProperty("jpa.ddl.generation_output_mode","database"));
+        jpa.put(PersistenceUnitProperties.WEAVING, env.getProperty("jpa.weaving", "false"));
+        jpa.put(PersistenceUnitProperties.DDL_GENERATION, env
+            .getProperty("jpa.ddl.generation", "create-or-extend-tables"));
+        jpa.put(PersistenceUnitProperties.LOGGING_LEVEL, env
+            .getProperty("jpa.logging.level", "FINE"));
+        jpa.put(PersistenceUnitProperties.DDL_GENERATION_MODE, env
+            .getProperty("jpa.ddl.generation_output_mode", "database"));
         jpa.put(PersistenceUnitProperties.VALIDATION_MODE, "CALLBACK");
         jpa.put(PersistenceUnitProperties.TARGET_DATABASE, "org.eclipse.persistence.platform.database.PostgreSQLPlatform");
         em.setJpaProperties(jpa);
@@ -119,7 +113,8 @@ public class RootConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor(LocalValidatorFactoryBean validator) {
+    public MethodValidationPostProcessor methodValidationPostProcessor(
+        LocalValidatorFactoryBean validator) {
         var p = new MethodValidationPostProcessor();
         p.setValidator(validator);
         return p;

@@ -1,14 +1,12 @@
 package se.ifmo.origin_backend.controller;
 
-
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.LocationDTO;
 import se.ifmo.origin_backend.model.Location;
 import se.ifmo.origin_backend.service.LocationService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/locs")

@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "addresses",
-    uniqueConstraints = @UniqueConstraint(name = "uk_address_street", columnNames = {"street"}))
+@Table(name = "addresses", uniqueConstraints = @UniqueConstraint(name = "uk_address_street",
+    columnNames = {"street"}))
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addr_seq")
@@ -19,6 +21,6 @@ public class Address {
     private Long id;
 
     @Column(length = 63)
-    @Size(max=63)
-    private String street; //Поле может быть null
+    @Size(max = 63)
+    private String street; // Поле может быть null
 }

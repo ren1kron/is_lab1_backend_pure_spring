@@ -1,5 +1,6 @@
 package se.ifmo.origin_backend.service;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -14,15 +15,15 @@ import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Coordinates;
 import se.ifmo.origin_backend.repo.CoordinatesRepo;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 public class CoordinatesService {
     private final ApplicationEventPublisher events;
     private final CoordinatesRepo repo;
 
-    public record CordEvent(String type, long id) {}
+    public record CordEvent(
+        String type,
+        long id) {}
 
     @Transactional(readOnly = true)
     public List<Coordinates> getAll() {
@@ -32,7 +33,9 @@ public class CoordinatesService {
     @Transactional(readOnly = true)
     public Coordinates getById(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new NotFoundElementWithIdException("Coordinates", id));
+            .orElseThrow(() -> new NotFoundElementWithIdException(
+                "Coordinates",
+                id));
     }
 
     @Transactional
@@ -52,7 +55,9 @@ public class CoordinatesService {
     @Transactional
     public Coordinates update(long id, CoordinatesDTO dto) {
         var cords = repo.findById(id)
-                .orElseThrow(() -> new NotFoundElementWithIdException("Coordinates", id));
+            .orElseThrow(() -> new NotFoundElementWithIdException(
+                "Coordinates",
+                id));
 
         cords.setX(dto.x());
         cords.setY(dto.y());
@@ -67,16 +72,19 @@ public class CoordinatesService {
 
     @Transactional
     public void delete(Long id) {
-        if (repo.findById(id).isEmpty()) throw new NotFoundElementWithIdException("Coordinates", id);
+        if (repo.findById(id).isEmpty())
+            throw new NotFoundElementWithIdException("Coordinates", id);
         repo.deleteById(id);
         events.publishEvent(new CordEvent("DELETED", id));
     }
 }
 
+
 @Component
 @AllArgsConstructor
 class CordEventForwarder {
     private final SimpMessagingTemplate broker;
+
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void on(CoordinatesService.CordEvent e) {
         broker.convertAndSend("/topic/cord-changed", e);

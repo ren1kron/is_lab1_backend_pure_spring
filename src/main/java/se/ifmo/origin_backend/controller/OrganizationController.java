@@ -1,15 +1,15 @@
 package se.ifmo.origin_backend.controller;
 
+import java.util.List;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.OrgCreateDTO;
 import se.ifmo.origin_backend.dto.OrgFullDTO;
 import se.ifmo.origin_backend.service.OrganizationService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/orgs")
 public class OrganizationController {
+    // todo make getOrganizations send ids of coords, addrs and locs
 
     private final OrganizationService service;
 

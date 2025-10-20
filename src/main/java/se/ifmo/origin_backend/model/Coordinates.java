@@ -8,10 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data @AllArgsConstructor @NoArgsConstructor
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "coordinates",
-        uniqueConstraints = @UniqueConstraint(name="uk_coords_xy", columnNames = {"x", "y"}))
+@Table(name = "coordinates", uniqueConstraints = @UniqueConstraint(name = "uk_coords_xy",
+    columnNames = {"x", "y"}))
 public class Coordinates {
 
     @Id
@@ -20,12 +22,12 @@ public class Coordinates {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
-    @NotNull @Max(562)
+    @NotNull
+    @Max(562)
     @Column(nullable = false)
-    private Long x; //Максимальное значение поля: 562, Поле не может быть null
+    private Long x; // Максимальное значение поля: 562, Поле не может быть null
 
     @NotNull
     @Column(nullable = false)
     private Long y; // Поле не может быть null
 }
-
