@@ -1,9 +1,13 @@
 package se.ifmo.origin_backend.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import se.ifmo.origin_backend.dto.*;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Organization;
@@ -21,7 +25,7 @@ public class OrganizationService {
     private final CoordinatesRepo cordRepo;
     private final AddressRepo addrRepo;
     private final LocationRepo locRepo;
-    private final SimpMessagingTemplate broker;
+    private final ApplicationEventPublisher events;
 
     public record OrgEvent(String type, int id) {}
 
@@ -40,7 +44,7 @@ public class OrganizationService {
     public void create(OrgCreateDTO dto) {
         var org = dtoToOrg(dto);
         var saved = orgRepo.save(org);
-        broker.convertAndSend("/topic/org-changed", new OrgEvent("CREATED", saved.getId()));
+        events.publishEvent(new OrgEvent("CREATED", saved.getId()));
     }
 
     @Transactional
@@ -50,14 +54,14 @@ public class OrganizationService {
 
         dtoToOrg(dto, org);
         var saved = orgRepo.save(org);
-        broker.convertAndSend("/topic/org-changed", new OrgEvent("UPDATED", saved.getId()));
+        events.publishEvent(new OrgEvent("UPDATED", saved.getId()));
     }
 
     @Transactional
     public void delete(int id) {
         if (orgRepo.findById(id).isEmpty()) throw new NotFoundElementWithIdException("Organization", id);
         orgRepo.deleteById(id);
-        broker.convertAndSend("/topic/org-changed", new OrgEvent("CREATED", id));
+        events.publishEvent(new OrgEvent("CREATED", id));
     }
 
     @Transactional
@@ -66,6 +70,7 @@ public class OrganizationService {
         cordRepo.deleteAll();
         addrRepo.deleteAll();
         locRepo.deleteAll();
+        events.publishEvent(new OrgEvent("CLEARED_ALL", 0));
     }
 
     // –––––––––––––––––––––––––––––––––––––––––
@@ -102,5 +107,15 @@ public class OrganizationService {
                 o.getType(),
                 new AddressDTO(o.getPostalAddress().getStreet())
         );
+    }
+}
+
+@Component
+@AllArgsConstructor
+class OrgEventForwarder {
+    private final SimpMessagingTemplate broker;
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void on(OrganizationService.OrgEvent e) {
+        broker.convertAndSend("/topic/org-changed", e);
     }
 }

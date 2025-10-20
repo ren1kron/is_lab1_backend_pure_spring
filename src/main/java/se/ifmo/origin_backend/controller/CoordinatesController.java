@@ -41,7 +41,7 @@ public class CoordinatesController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Coordinates update(@PathVariable long id, @RequestBody CoordinatesDTO dto) {
+    public Coordinates update(@PathVariable long id, @RequestBody @Valid CoordinatesDTO dto) {
         return service.update(id, dto);
     }
 

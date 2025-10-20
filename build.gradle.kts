@@ -1,6 +1,23 @@
 plugins {
 	java
 	war
+	id("com.diffplug.spotless") version "8.0.0"
+	id("com.github.spotbugs") version "6.2.5"
+}
+
+spotbugs {
+	toolVersion.set("4.8.3") // SpotBugs core version
+	effort.set(com.github.spotbugs.snom.Effort.MAX) // MAX, DEFAULT, MIN
+	reportLevel.set(com.github.spotbugs.snom.Confidence.LOW) // LOW, MEDIUM, HIGH
+}
+
+spotless {
+	java {
+		googleJavaFormat("1.22.0")
+	}
+	kotlinGradle {
+		ktlint()
+	}
 }
 
 group = "se.ifmo"

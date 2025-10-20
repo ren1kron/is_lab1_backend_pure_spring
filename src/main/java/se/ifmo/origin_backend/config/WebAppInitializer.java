@@ -15,6 +15,7 @@ public class WebAppInitializer implements WebApplicationInitializer {
 
         var dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(appCtx));
         dispatcher.setLoadOnStartup(1);
+        dispatcher.setAsyncSupported(true);
         dispatcher.addMapping("/api/*");
     }
 }

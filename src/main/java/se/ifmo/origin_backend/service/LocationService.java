@@ -1,8 +1,13 @@
 package se.ifmo.origin_backend.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import se.ifmo.origin_backend.dto.LocationDTO;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Location;
@@ -13,8 +18,10 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class LocationService {
-
+    private final ApplicationEventPublisher events;
     private final LocationRepo repo;
+
+    public record LocEvent(String type, long id) {}
 
     @Transactional(readOnly = true)
     public List<Location> getAll() {
@@ -35,7 +42,9 @@ public class LocationService {
         loc.setZ(dto.z());
         loc.setName(dto.name());
 
-        return repo.save(loc);
+        var saved = repo.save(loc);
+        events.publishEvent(new LocEvent("CREATED", saved.getId()));
+        return saved;
     }
 
     @Transactional
@@ -48,7 +57,9 @@ public class LocationService {
         loc.setZ(dto.z());
         loc.setName(dto.name());
 
-        return repo.save(loc);
+        var saved = repo.save(loc);
+        events.publishEvent(new LocEvent("UPDATED", saved.getId()));
+        return saved;
     }
 
     @Transactional
@@ -56,5 +67,16 @@ public class LocationService {
         if (repo.findById(id).isEmpty())
             throw new NotFoundElementWithIdException("Location", id);
         repo.deleteById(id);
+        events.publishEvent(new LocEvent("DELETED", id));
+    }
+}
+
+@Component
+@AllArgsConstructor
+class LocEventForwarder {
+    private final SimpMessagingTemplate broker;
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void on(LocationService.LocEvent e) {
+        broker.convertAndSend("/topic/loc-changed", e);
     }
 }
