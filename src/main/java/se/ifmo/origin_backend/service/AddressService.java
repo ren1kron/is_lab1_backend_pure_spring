@@ -33,9 +33,7 @@ public class AddressService {
     @Transactional(readOnly = true)
     public Address getById(Long id) {
         return repo.findById(id)
-            .orElseThrow(() -> new NotFoundElementWithIdException(
-                "Address",
-                id));
+            .orElseThrow(() -> new NotFoundElementWithIdException("Address", id));
     }
 
     @Transactional

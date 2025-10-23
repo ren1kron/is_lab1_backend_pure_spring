@@ -76,7 +76,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.42")
 
     // Logs
-    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("org.slf4j:slf4j-api:2.0.17")
+    implementation("org.slf4j:jul-to-slf4j:2.0.17")
     runtimeOnly("ch.qos.logback:logback-classic:1.5.19")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")

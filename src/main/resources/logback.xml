@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- ======= Properties ======= -->
+    <property name="APP_NAME" value="origin-backend"/>
+    <property name="LOG_DIR"  value="${LOG_DIR:-${USER_HOME}/logs/${APP_NAME}}"/>
+    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"/>
+
+    <!-- ======= Encoders ======= -->
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+        <pattern>${PATTERN}</pattern>
+    </encoder>
+
+    <!-- ======= Console appender (dev/default) ======= -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======= Rolling file appender (prod) ======= -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- one file per day, keep 30 days -->
+            <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======= Async wrappers ======= -->
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="CONSOLE"/>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+        <discardingThreshold>0</discardingThreshold>
+    </appender>
+
+    <!-- ======= Loggers (tune as you like) ======= -->
+    <!-- Your code -->
+    <logger name="se.ifmo" level="INFO"/>
+
+    <!-- Spring -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.messaging" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+
+    <!-- DB / pool -->
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+
+    <!-- EclipseLink (uses JUL under the hood, bridge recommended) -->
+    <logger name="org.eclipse.persistence" level="WARN"/>
+
+    <!-- Root -->
+    <!-- In dev: console only; in prod, you might switch to ASYNC_FILE or both. -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+        <!-- For prod, uncomment: -->
+        <!-- <appender-ref ref="ASYNC_FILE"/> -->
+    </root>
+</configuration>
