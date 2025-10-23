@@ -3,7 +3,7 @@ package se.ifmo.origin_backend.controller;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.OrgCreateDTO;
-import se.ifmo.origin_backend.dto.OrgFullDTO;
+import se.ifmo.origin_backend.model.Organization;
 import se.ifmo.origin_backend.service.OrganizationService;
 
 @RestController
@@ -18,12 +18,12 @@ public class OrganizationController {
     }
 
     @GetMapping
-    public List<OrgFullDTO> getOrgranizations() {
+    public List<Organization> getOrgranizations() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public OrgFullDTO getOrganizationById(@PathVariable int id) {
+    public Organization getOrganizationById(@PathVariable int id) {
         return service.getById(id);
     }
 

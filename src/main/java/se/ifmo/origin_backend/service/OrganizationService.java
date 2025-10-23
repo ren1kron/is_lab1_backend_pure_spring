@@ -31,16 +31,14 @@ public class OrganizationService {
         int id) {}
 
     @Transactional(readOnly = true)
-    public List<OrgFullDTO> getAll() {
-        return orgRepo.findAllFull();
+    public List<Organization> getAll() {
+        return orgRepo.findAll();
     }
 
     @Transactional(readOnly = true)
-    public OrgFullDTO getById(int id) {
-        return orgRepo.findFullById(id)
-            .orElseThrow(() -> new NotFoundElementWithIdException(
-                "Organization",
-                id));
+    public Organization getById(int id) {
+        return orgRepo.findById(id)
+            .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
     }
 
     @Transactional
@@ -53,9 +51,7 @@ public class OrganizationService {
     @Transactional
     public void update(int id, OrgCreateDTO dto) {
         Organization org = orgRepo.findById(id)
-            .orElseThrow(() -> new NotFoundElementWithIdException(
-                "Organization",
-                id));
+            .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
 
         dtoToOrg(dto, org);
         var saved = orgRepo.save(org);
@@ -88,38 +84,16 @@ public class OrganizationService {
     private Organization dtoToOrg(OrgCreateDTO dto, Organization org) {
         org.setName(dto.name());
         org.setCoordinates(cordRepo.findById(dto.coordinatesId())
-            .orElseThrow(() -> new NotFoundElementWithIdException(
-                "Coordinates",
-                dto.coordinatesId())));
+            .orElseThrow(() -> new NotFoundElementWithIdException("Coordinates", dto.coordinatesId())));
         org.setOfficialAddress(locRepo.findById(dto.officialAddressId())
-            .orElseThrow(() -> new NotFoundElementWithIdException(
-                "Location",
-                dto.officialAddressId())));
+            .orElseThrow(() -> new NotFoundElementWithIdException("Location", dto.officialAddressId())));
         org.setAnnualTurnover(dto.annualTurnover());
         org.setEmployeesCount(dto.employeesCount());
         org.setRating(dto.rating());
         org.setType(dto.type());
         org.setPostalAddress(addrRepo.findById(dto.postalAddressId())
-            .orElseThrow(() -> new NotFoundElementWithIdException(
-                "Address",
-                dto.postalAddressId())));
+            .orElseThrow(() -> new NotFoundElementWithIdException("Address", dto.postalAddressId())));
         return org;
-    }
-
-    private OrgFullDTO orgToFullDto(Organization o) {
-        return new OrgFullDTO(o.getId(), o.getName(),
-            new CoordinatesDTO(o.getCoordinates().getX(),
-                o.getCoordinates().getY()),
-            o.getCreationDate(),
-            new LocationDTO(o.getOfficialAddress().getX(),
-                o.getOfficialAddress().getY(),
-                o.getOfficialAddress().getZ(),
-                o.getOfficialAddress().getName()),
-            o.getAnnualTurnover(),
-            o.getEmployeesCount(),
-            o.getRating(),
-            o.getType(),
-            new AddressDTO(o.getPostalAddress().getStreet()));
     }
 }
 
