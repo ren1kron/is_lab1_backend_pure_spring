@@ -52,8 +52,6 @@ public class Organization {
     @Positive
     private int rating; // Значение поля должно быть больше 0
 
-    @NotNull
-    @Column(nullable = false)
     private OrganizationType type; // Поле может быть null
 
     @NotNull
