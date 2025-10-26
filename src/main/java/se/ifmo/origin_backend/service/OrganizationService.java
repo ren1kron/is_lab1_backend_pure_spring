@@ -3,6 +3,9 @@ package se.ifmo.origin_backend.service;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import se.ifmo.origin_backend.repo.AddressRepo;
 import se.ifmo.origin_backend.repo.CoordinatesRepo;
 import se.ifmo.origin_backend.repo.LocationRepo;
 import se.ifmo.origin_backend.repo.OrganizationRepo;
+import se.ifmo.origin_backend.spec.OrgSpecFactory;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +29,8 @@ public class OrganizationService {
     private final AddressRepo addrRepo;
     private final LocationRepo locRepo;
     private final ApplicationEventPublisher events;
+
+    private final OrgSpecFactory orgSpecFactory;
 
     public record OrgEvent(
         String type,
@@ -41,21 +47,30 @@ public class OrganizationService {
             .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
     }
 
-    @Transactional
-    public void create(OrgCreateDTO dto) {
-        var org = dtoToOrg(dto);
-        var saved = orgRepo.save(org);
-        events.publishEvent(new OrgEvent("CREATED", saved.getId()));
+    @Transactional(readOnly = true)
+    public PageDTO<Organization> search(OrgSearchRequestDTO req, Pageable pageable) {
+        Specification<Organization> spec = orgSpecFactory.from(req);
+        Page<Organization> page = orgRepo.findAll(spec, pageable);
+        return new PageDTO<>(page.getContent(), page.getNumber(), page.getSize(), page.getTotalElements());
     }
 
     @Transactional
-    public void update(int id, OrgCreateDTO dto) {
+    public Organization create(OrgCreateDTO dto) {
+        var org = dtoToOrg(dto);
+        var saved = orgRepo.save(org);
+        events.publishEvent(new OrgEvent("CREATED", saved.getId()));
+        return saved;
+    }
+
+    @Transactional
+    public Organization update(int id, OrgCreateDTO dto) {
         Organization org = orgRepo.findById(id)
             .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
 
         dtoToOrg(dto, org);
         var saved = orgRepo.save(org);
         events.publishEvent(new OrgEvent("UPDATED", saved.getId()));
+        return saved;
     }
 
     @Transactional

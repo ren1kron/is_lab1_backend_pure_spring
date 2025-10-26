@@ -2,6 +2,8 @@ package se.ifmo.origin_backend.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.CoordinatesDTO;
@@ -10,6 +12,7 @@ import se.ifmo.origin_backend.service.CoordinatesService;
 
 @RestController
 @RequestMapping("/coords")
+@AllArgsConstructor
 public class CoordinatesController {
     // TODO 1. переименовать add... в create (без названия, что сreate. и так
     // понятно по
@@ -23,10 +26,6 @@ public class CoordinatesController {
     // 3.
 
     private final CoordinatesService service;
-
-    public CoordinatesController(CoordinatesService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<Coordinates> getAll() {

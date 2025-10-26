@@ -297,7 +297,7 @@
         <setting id="org.eclipse.jdt.core.formatter.alignment_for_enum_constants" value="49"/>
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_parenthesized_expression" value="do not insert"/>
         <setting id="org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_annotation_declaration_header" value="true"/>
-        <setting id="org.eclipse.jdt.core.formatter.insert_new_line_in_empty_block" value="insert"/>
+<!--        <setting id="org.eclipse.jdt.core.formatter.insert_new_line_in_empty_block" value="insert"/>-->
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_parenthesized_expression" value="do not insert"/>
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_catch" value="do not insert"/>
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_comma_in_multiple_local_declarations" value="do not insert"/>
@@ -342,5 +342,6 @@
         <setting id="org.eclipse.jdt.core.formatter.brace_position_for_record_declaration" value="end_of_line"/>
         <setting id="org.eclipse.jdt.core.formatter.keep_record_constructor_on_one_line" value="one_line_always"/>
 
+        <!-- Lambda -->
     </profile>
 </profiles>

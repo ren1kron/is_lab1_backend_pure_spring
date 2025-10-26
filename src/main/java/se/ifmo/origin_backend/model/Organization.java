@@ -24,7 +24,7 @@ public class Organization {
                         // уникальным, Значение этого поля должно генерироваться автоматически
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name; // Поле не может быть null, Строка не может быть пустой
 
     @NotNull
@@ -42,16 +42,20 @@ public class Organization {
     private Location officialAddress; // Поле не может быть null
 
     @Positive
+    @Column(name = "annual_turnover")
     private Long annualTurnover; // Поле может быть null, Значение поля должно быть больше 0
 
     @NotNull
     @Positive
-    @Column(nullable = false)
+    @Column(name = "employees_count", nullable = false)
     private Long employeesCount; // Поле не может быть null, Значение поля должно быть больше 0
 
     @Positive
+    @Column(name = "rating")
     private int rating; // Значение поля должно быть больше 0
 
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
     private OrganizationType type; // Поле может быть null
 
     @NotNull
