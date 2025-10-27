@@ -4,9 +4,11 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.CoordinatesDTO;
+import se.ifmo.origin_backend.event.CordEvent;
 import se.ifmo.origin_backend.model.Coordinates;
 import se.ifmo.origin_backend.service.CoordinatesService;
 
@@ -14,17 +16,7 @@ import se.ifmo.origin_backend.service.CoordinatesService;
 @RequestMapping("/coords")
 @AllArgsConstructor
 public class CoordinatesController {
-    // TODO 1. переименовать add... в create (без названия, что сreate. и так
-    // понятно по
-    // контроллеру-сервису)
-    // 2. Сделать так, чтобы post/put запросы возвращали что-то, что может понять
-    // успешность создания
-    // объекта (сам объект, либо его id, либо путь до него).
-    // лучшее решение – возвращать фул объект. Мы получаем отвалидированные сервером
-    // данные,
-    // которые показываем пользователю
-    // 3.
-
+    private final ApplicationEventPublisher events;
     private final CoordinatesService service;
 
     @GetMapping
@@ -40,18 +32,23 @@ public class CoordinatesController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Coordinates create(@Valid @RequestBody CoordinatesDTO dto) {
-        return service.create(dto);
+        var created = service.create(dto);
+        events.publishEvent(new CordEvent("CREATED", created.getId()));
+        return created;
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Coordinates update(@PathVariable long id, @RequestBody @Valid CoordinatesDTO dto) {
-        return service.update(id, dto);
+        var updated = service.update(id, dto);
+        events.publishEvent(new CordEvent("UPDATED", updated.getId()));
+        return updated;
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.delete(id);
+        events.publishEvent(new CordEvent("DELETED", id));
     }
 }

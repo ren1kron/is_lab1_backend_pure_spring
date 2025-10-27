@@ -2,16 +2,11 @@ package se.ifmo.origin_backend.service;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import se.ifmo.origin_backend.dto.*;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Organization;
@@ -28,13 +23,8 @@ public class OrganizationService {
     private final CoordinatesRepo cordRepo;
     private final AddressRepo addrRepo;
     private final LocationRepo locRepo;
-    private final ApplicationEventPublisher events;
 
     private final OrgSpecFactory orgSpecFactory;
-
-    public record OrgEvent(
-        String type,
-        int id) {}
 
     @Transactional(readOnly = true)
     public List<Organization> getAll() {
@@ -57,9 +47,7 @@ public class OrganizationService {
     @Transactional
     public Organization create(OrgCreateDTO dto) {
         var org = dtoToOrg(dto);
-        var saved = orgRepo.save(org);
-        events.publishEvent(new OrgEvent("CREATED", saved.getId()));
-        return saved;
+        return orgRepo.save(org);
     }
 
     @Transactional
@@ -68,9 +56,7 @@ public class OrganizationService {
             .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
 
         dtoToOrg(dto, org);
-        var saved = orgRepo.save(org);
-        events.publishEvent(new OrgEvent("UPDATED", saved.getId()));
-        return saved;
+        return orgRepo.save(org);
     }
 
     @Transactional
@@ -78,7 +64,6 @@ public class OrganizationService {
         if (orgRepo.findById(id).isEmpty())
             throw new NotFoundElementWithIdException("Organization", id);
         orgRepo.deleteById(id);
-        events.publishEvent(new OrgEvent("DELETED", id));
     }
 
     @Transactional
@@ -87,7 +72,6 @@ public class OrganizationService {
         cordRepo.deleteAll();
         addrRepo.deleteAll();
         locRepo.deleteAll();
-        events.publishEvent(new OrgEvent("CLEARED_ALL", 0));
     }
 
     // –––––––––––––––––––––––––––––––––––––––––
@@ -109,17 +93,5 @@ public class OrganizationService {
         org.setPostalAddress(addrRepo.findById(dto.postalAddressId())
             .orElseThrow(() -> new NotFoundElementWithIdException("Address", dto.postalAddressId())));
         return org;
-    }
-}
-
-
-@Component
-@AllArgsConstructor
-class OrgEventForwarder {
-    private final SimpMessagingTemplate broker;
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void on(OrganizationService.OrgEvent e) {
-        broker.convertAndSend("/topic/org-changed", e);
     }
 }

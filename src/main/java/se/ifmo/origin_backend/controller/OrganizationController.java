@@ -4,7 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,28 +15,54 @@ import org.springframework.web.bind.annotation.*;
 import se.ifmo.origin_backend.dto.OrgCreateDTO;
 import se.ifmo.origin_backend.dto.OrgSearchRequestDTO;
 import se.ifmo.origin_backend.dto.PageDTO;
+import se.ifmo.origin_backend.event.OrgEvent;
 import se.ifmo.origin_backend.model.Organization;
 import se.ifmo.origin_backend.model.OrganizationType;
 import se.ifmo.origin_backend.service.OrganizationService;
 
 @RestController
 @RequestMapping("/orgs")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrganizationController {
+    private static final Map<String, String> SORT_MAP =
+        Map.ofEntries(Map.entry("name", "name"), Map.entry("employeesCount", "employeesCount"), Map.entry("rating", "rating"), Map
+            .entry("coordinatesX", "coordinates.x"), Map.entry("coordinatesY", "coordinates.y"), Map
+                .entry("officialAddressX", "officialAddress.x"), Map.entry("officialAddressY", "officialAddress.y"), Map
+                    .entry("officialAddressZ", "officialAddress.z"), Map.entry("postalStreet", "postalAddress.street"), Map
+                        .entry("annualTurnover", "annualTurnover"), Map.entry("type", "type"));
+
     private final OrganizationService service;
-    private static final Map<String, String> SORT_MAP = Map.ofEntries(
-            Map.entry("name", "name"),
-            Map.entry("employeesCount", "employeesCount"),
-            Map.entry("rating", "rating"),
-            Map.entry("coordinatesX", "coordinates.x"),
-            Map.entry("coordinatesY", "coordinates.y"),
-            Map.entry("officialAddressX", "officialAddress.x"),
-            Map.entry("officialAddressY", "officialAddress.y"),
-            Map.entry("officialAddressZ", "officialAddress.z"),
-            Map.entry("postalStreet", "postalAddress.street"),
-            Map.entry("annualTurnover", "annualTurnover"),
-            Map.entry("type", "type")
-    );
+    private final ApplicationEventPublisher events;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Organization create(@RequestBody OrgCreateDTO dto) {
+        var created = service.create(dto);
+        events.publishEvent(new OrgEvent("CREATED", created.getId()));
+        return created;
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Organization update(@PathVariable int id, @RequestBody OrgCreateDTO dto) {
+        var updated = service.update(id, dto);
+        events.publishEvent(new OrgEvent("UPDATED", updated.getId()));
+        return updated;
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable int id) {
+        service.delete(id);
+        events.publishEvent(new OrgEvent("DELETED", id));
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clear() {
+        service.clear();
+        events.publishEvent(new OrgEvent("CLEARED_ALL", 0));
+    }
 
     @GetMapping
     public PageDTO<Organization> findAll(
@@ -72,7 +99,8 @@ public class OrganizationController {
             String[] p = sort.split(",");
             String requested = p[0].strip();
             Sort.Direction dir = (p.length > 1 && "desc".equalsIgnoreCase(p[1]))
-                    ? Sort.Direction.DESC : Sort.Direction.ASC;
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
             String property = SORT_MAP.getOrDefault(requested, "creationDate");
             sortSpec = Sort.by(new Sort.Order(dir, property));
         }
@@ -81,33 +109,9 @@ public class OrganizationController {
         return service.search(req, pageable);
     }
 
-
     @GetMapping("/{id}")
     public Organization getOrganizationById(@PathVariable int id) {
         return service.getById(id);
     }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Organization create(@RequestBody OrgCreateDTO dto) {
-        return service.create(dto);
-    }
-
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Organization update(@PathVariable int id, @RequestBody OrgCreateDTO dto) {
-        return service.update(id, dto);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOrganization(@PathVariable int id) {
-        service.delete(id);
-    }
-
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clear() {
-        service.clear();
-    }
 }
+
