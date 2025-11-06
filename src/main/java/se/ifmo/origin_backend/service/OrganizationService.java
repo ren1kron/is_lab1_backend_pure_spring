@@ -3,13 +3,16 @@ package se.ifmo.origin_backend.service;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.*;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Organization;
+import se.ifmo.origin_backend.model.OrganizationType;
 import se.ifmo.origin_backend.repo.AddressRepo;
 import se.ifmo.origin_backend.repo.CoordinatesRepo;
 import se.ifmo.origin_backend.repo.LocationRepo;
@@ -42,6 +45,46 @@ public class OrganizationService {
         Specification<Organization> spec = orgSpecFactory.from(req);
         Page<Organization> page = orgRepo.findAll(spec, pageable);
         return new PageDTO<>(page.getContent(), page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    // Вернуть количество объектов, значение поля postalAddress которых меньше заданного.
+    @Transactional(readOnly = true)
+    public Long countAllByPostalAddressLessThan(Long addressId) {
+        var addr = addrRepo.findById(addressId)
+            .orElseThrow(() -> new NotFoundElementWithIdException("Address", addressId));
+        return orgRepo.countAllByPostalAddress_StreetLessThan(addr.getStreet());
+    }
+
+    // Вернуть массив объектов, значение поля postalAddress которых больше заданного.
+    @Transactional(readOnly = true)
+    public List<Organization> findAllByPostalAddressGreaterThan(Long addressId) {
+        var addr = addrRepo.findById(addressId)
+            .orElseThrow(() -> new NotFoundElementWithIdException("Address", addressId));
+        return orgRepo.findAllByPostalAddress_StreetGreaterThan(addr.getStreet());
+    }
+
+    // Вернуть массив объектов, значение поля postalAddress которых больше заданного
+    @Transactional(readOnly = true)
+    public List<OrganizationType> findDistinctTypes() {
+        return orgRepo.findDistinctTypes();
+    }
+
+    // Вывести 5 организаций с максимальным годовым оборотом
+    @Transactional(readOnly = true)
+    public List<Organization> findTop5OrgsWithGreatestAnnualTurnover() {
+        Pageable pageTop5 = PageRequest.of(0, 5, Sort.by("annualTurnover").descending());
+        return orgRepo.findAll(pageTop5).getContent();
+    }
+
+    // Найти среднее количество сотрудников для 10 крупнейших организаций по годовому обороту
+    @Transactional(readOnly = true)
+    public Double findAvgEmployeesFor10OrgsWithGreatestAnnualTurnover() {
+        Pageable pageTop10 = PageRequest.of(0, 10, Sort.by("annualTurnover").descending());
+        Double avg = orgRepo.findAll(pageTop10).stream()
+            .mapToLong(Organization::getEmployeesCount)
+            .average()
+            .orElse(0.0);
+        return avg;
     }
 
     @Transactional

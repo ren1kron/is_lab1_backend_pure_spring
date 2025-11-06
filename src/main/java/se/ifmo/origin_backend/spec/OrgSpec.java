@@ -101,10 +101,6 @@ public final class OrgSpec {
     }
 
     // nums
-    public static Specification<Organization> hasAnnualTurnover(Long providedNum) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("annualTurnover"), providedNum);
-    }
-
     public static Specification<Organization> annualTurnoverBetween(Long min, Long max) {
         return (root, cq, cb) -> {
             if (min == null && max == null)
@@ -117,10 +113,6 @@ public final class OrgSpec {
         };
     }
 
-    public static Specification<Organization> hasEmployeesCount(Long providedNum) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employeesCount"), providedNum);
-    }
-
     public static Specification<Organization> employeesBetween(Long min, Long max) {
         return (root, cq, cb) -> {
             if (min == null && max == null)
@@ -131,10 +123,6 @@ public final class OrgSpec {
             return (min != null) ? cb.ge(path, min)
                 : cb.le(path, max);
         };
-    }
-
-    public static Specification<Organization> hasRating(Integer providedNum) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("rating"), providedNum);
     }
 
     public static Specification<Organization> ratingBetween(Integer min, Integer max) {

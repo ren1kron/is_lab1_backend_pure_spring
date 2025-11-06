@@ -113,5 +113,30 @@ public class OrganizationController {
     public Organization getOrganizationById(@PathVariable int id) {
         return service.getById(id);
     }
+
+    @GetMapping("/task1/{addressId}")
+    public Long countAllByPostalAddressLessThan(@PathVariable Long addressId) {
+        return service.countAllByPostalAddressLessThan(addressId);
+    }
+
+    @GetMapping("/task2/{addressId}")
+    public List<Organization> findAllByPostalAddressGreaterThan(@PathVariable Long addressId) {
+        return service.findAllByPostalAddressGreaterThan(addressId);
+    }
+
+    @GetMapping("/task3")
+    public List<OrganizationType> findDistinctTypes() {
+        return service.findDistinctTypes();
+    }
+
+    @GetMapping("/task4")
+    public List<Organization> findTop5OrgsWithGreatestAnnualTurnover() {
+        return service.findTop5OrgsWithGreatestAnnualTurnover();
+    }
+
+    @GetMapping("/task5")
+    public Double findAvgEmployeesFor10OrgsWithGreatestAnnualTurnover() {
+        return service.findAvgEmployeesFor10OrgsWithGreatestAnnualTurnover();
+    }
 }
 
