@@ -77,10 +77,15 @@ public final class OrgSpec {
     }
 
     // strings
-    public static Specification<Organization> loactionNameContains(String q) {
-        return (root, cq, cb) -> (q == null || q.isBlank())
-            ? cb.conjunction()
-            : cb.like(cb.lower(root.join("location").get("name")), "%" + escapeLike(q.toLowerCase()) + "%", '\\');
+    public static Specification<Organization> locationNameContains(String q) {
+        return (root, cq, cb) -> {
+            if (q == null || q.isBlank()) return cb.conjunction();
+            var addr = root.join("officialAddress"); // Join<Organization, Location>
+            return cb.like(
+                    cb.lower(addr.get("name")),
+                    q.toLowerCase(), '\\'
+            );
+        };
     }
 
     // ids
@@ -141,7 +146,7 @@ public final class OrgSpec {
     public static Specification<Organization> nameContains(String q) {
         return (root, cq, cb) -> (q == null || q.isBlank())
             ? cb.conjunction()
-            : cb.like(cb.lower(root.get("name")), "%" + escapeLike(q.toLowerCase()) + "%", '\\');
+            : cb.like(cb.lower(root.get("name")), q.toLowerCase(), '\\');
     }
 
     // date
