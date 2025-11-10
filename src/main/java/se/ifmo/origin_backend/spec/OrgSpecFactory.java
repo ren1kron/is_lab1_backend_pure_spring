@@ -21,6 +21,6 @@ public class OrgSpecFactory {
             .and(locationXBetween(req.locationXMin(), req.locationXMax()))
             .and(locationYBetween(req.locationYMin(), req.locationYMax()))
             .and(locationZBetween(req.locationZMin(), req.locationZMax()))
-            .and(loactionNameContains(req.name()));
+            .and(locationNameContains(req.name()));
     }
 }

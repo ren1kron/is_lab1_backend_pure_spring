@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.LocationDTO;
+import se.ifmo.origin_backend.error.DuplicateAddressException;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Location;
 import se.ifmo.origin_backend.repo.LocationRepo;
@@ -49,5 +50,6 @@ public class LocationService {
         if (repo.findById(id).isEmpty())
             throw new NotFoundElementWithIdException("Location", id);
         repo.deleteById(id);
+        System.out.println("DELETED SUCK SEX FULLY!!!");
     }
 }
