@@ -35,6 +35,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableJpaRepositories(basePackages = "se.ifmo.origin_backend.repo")
 @AllArgsConstructor
 @PropertySource("classpath:application.properties")
+@PropertySource("classpath:secret.properties")
 public class RootConfig implements WebMvcConfigurer {
 
     private final Environment env;
@@ -124,4 +125,5 @@ public class RootConfig implements WebMvcConfigurer {
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
         configurer.setDefaultTimeout(30_000);
     }
+
 }
