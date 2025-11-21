@@ -15,7 +15,7 @@ public final class OrgSpec {
     }
 
     // coords
-    public static Specification<Organization> coordXBetween(Long min, Long max) {
+    public static Specification<Organization> cordXBetween(Long min, Long max) {
         return (root, cq, cb) -> {
             if (min == null && max == null)
                 return cb.conjunction();
@@ -27,7 +27,7 @@ public final class OrgSpec {
         };
     }
 
-    public static Specification<Organization> coordYBetween(Long min, Long max) {
+    public static Specification<Organization> cordYBetween(Long min, Long max) {
         return (root, cq, cb) -> {
             if (min == null && max == null)
                 return cb.conjunction();
@@ -79,12 +79,10 @@ public final class OrgSpec {
     // strings
     public static Specification<Organization> locationNameContains(String q) {
         return (root, cq, cb) -> {
-            if (q == null || q.isBlank()) return cb.conjunction();
+            if (q == null || q.isBlank())
+                return cb.conjunction();
             var addr = root.join("officialAddress"); // Join<Organization, Location>
-            return cb.like(
-                    cb.lower(addr.get("name")),
-                    q.toLowerCase(), '\\'
-            );
+            return cb.like(cb.lower(addr.get("name")), q.toLowerCase(), '\\');
         };
     }
 

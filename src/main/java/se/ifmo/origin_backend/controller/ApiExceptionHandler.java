@@ -2,7 +2,6 @@ package se.ifmo.origin_backend.controller;
 
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -30,16 +29,6 @@ public class ApiExceptionHandler {
         pd.setProperty("code", "ENTITY_DUPLICATE");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
     }
-
-    // Fallback for DB-level unique violations (in case of race)
-//    @ExceptionHandler(DataIntegrityViolationException.class)
-//    public ResponseEntity<ProblemDetail> handleDataIntegrity(DataIntegrityViolationException ex) {
-//        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-//        pd.setTitle("Duplicate coordinates");
-//        pd.setDetail("Coordinates with the same (x,y) already exist.");
-//        pd.setProperty("code", "COORDINATES_DUPLICATE");
-//        return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
-//    }
 
     // Validation errors (@NotNull, @Max, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)

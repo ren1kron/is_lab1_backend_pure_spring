@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.LocationDTO;
-import se.ifmo.origin_backend.error.DuplicateAddressException;
+import se.ifmo.origin_backend.error.DuplicateLocationException;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Location;
 import se.ifmo.origin_backend.repo.LocationRepo;
@@ -29,7 +29,11 @@ public class LocationService {
     @Transactional
     public Location create(LocationDTO dto) {
         var loc = new Location(null, dto.x(), dto.y(), dto.z(), dto.name());
-        return repo.save(loc);
+        try {
+            return repo.saveAndFlush(loc);
+        } catch (org.springframework.orm.jpa.JpaSystemException ex) {
+            throw new DuplicateLocationException(dto);
+        }
     }
 
     @Transactional
@@ -42,7 +46,11 @@ public class LocationService {
         loc.setZ(dto.z());
         loc.setName(dto.name());
 
-        return repo.save(loc);
+        try {
+            return repo.saveAndFlush(loc);
+        } catch (org.springframework.orm.jpa.JpaSystemException ex) {
+            throw new DuplicateLocationException(dto);
+        }
     }
 
     @Transactional

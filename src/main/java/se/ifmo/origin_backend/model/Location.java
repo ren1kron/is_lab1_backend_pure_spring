@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "locations")
-public class Location { // todo add unique constraints
+@Table(name = "locations", uniqueConstraints = @UniqueConstraint(name = "uk_locs_xyz_name", columnNames = {"x", "y", "z", "name"}))
+public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "loc_seq")

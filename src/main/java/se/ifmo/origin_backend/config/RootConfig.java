@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManagerFactory;
 import java.util.Properties;
 import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@Slf4j
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "se.ifmo.origin_backend")
@@ -48,6 +50,12 @@ public class RootConfig implements WebMvcConfigurer {
         cfg.setPassword(env.getProperty("db.password"));
         cfg.setDriverClassName("org.postgresql.Driver");
         cfg.setMaximumPoolSize(env.getProperty("db.pool.max", Integer.class, 5));
+
+        log.info("JdbcUrl: {}", cfg.getJdbcUrl());
+        log.info("db.username: {}", cfg.getUsername());
+        log.info("db.password: {}", cfg.getPassword());
+        log.info("db.driverClassName: {}", cfg.getDriverClassName());
+
         return new HikariDataSource(cfg);
     }
 
@@ -126,4 +134,14 @@ public class RootConfig implements WebMvcConfigurer {
         configurer.setDefaultTimeout(30_000);
     }
 
+    // @Override
+    // public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    // registry.addResourceHandler("/**")
+    // .addResourceLocations( "classpath:/static/",
+    // "classpath:/public/",
+    // "classpath:/META-INF/resources/",
+    // "/" // for src/main/webapp
+    // )
+    // .setCachePeriod(7 * 24 * 60 * 60) .resourceChain(true);
+    // }
 }
