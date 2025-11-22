@@ -1,5 +1,7 @@
 package se.ifmo.origin_backend.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -11,13 +13,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import se.ifmo.origin_backend.dto.ImportResult;
 import se.ifmo.origin_backend.dto.OrgCreateDTO;
 import se.ifmo.origin_backend.dto.OrgSearchRequestDTO;
 import se.ifmo.origin_backend.dto.PageDTO;
+import se.ifmo.origin_backend.error.ImportValidationException;
+import se.ifmo.origin_backend.error.RowError;
 import se.ifmo.origin_backend.event.OrgEvent;
 import se.ifmo.origin_backend.model.Organization;
 import se.ifmo.origin_backend.model.OrganizationType;
+import se.ifmo.origin_backend.service.OrgImportService;
 import se.ifmo.origin_backend.service.OrganizationService;
 
 @RestController
@@ -32,6 +40,7 @@ public class OrganizationController {
                         .entry("annualTurnover", "annualTurnover"), Map.entry("type", "type"));
 
     private final OrganizationService service;
+    private final OrgImportService importService;
     private final ApplicationEventPublisher events;
 
     @PostMapping
@@ -77,10 +86,10 @@ public class OrganizationController {
         @RequestParam(required = false) Long annualTurnoverMax,
         @RequestParam(required = false) Integer ratingMin,
         @RequestParam(required = false) Integer ratingMax,
-        @RequestParam(required = false) Long coordXMin,
-        @RequestParam(required = false) Long coordXMax,
-        @RequestParam(required = false) Long coordYMin,
-        @RequestParam(required = false) Long coordYMax,
+        @RequestParam(required = false) Long cordXMin,
+        @RequestParam(required = false) Long cordXMax,
+        @RequestParam(required = false) Long cordYMin,
+        @RequestParam(required = false) Long cordYMax,
         @RequestParam(required = false) Float locationXMin,
         @RequestParam(required = false) Float locationXMax,
         @RequestParam(required = false) Integer locationYMin,
@@ -90,7 +99,7 @@ public class OrganizationController {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdFrom,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdTo) {
         OrgSearchRequestDTO req = new OrgSearchRequestDTO(name, type, employeesMin, employeesMax, annualTurnoverMin, annualTurnoverMax,
-            ratingMin, ratingMax, createdFrom, createdTo, coordXMin, coordXMax, coordYMin, coordYMax, locationXMin, locationXMax,
+            ratingMin, ratingMax, createdFrom, createdTo, cordXMin, cordXMax, cordYMin, cordYMax, locationXMin, locationXMax,
             locationYMin, locationYMax, locationZMin, locationZMax);
 
         // Whitelist sort fields to entity props
@@ -137,6 +146,31 @@ public class OrganizationController {
     @GetMapping("/task5")
     public Double findAvgEmployeesFor10OrgsWithGreatestAnnualTurnover() {
         return service.findAvgEmployeesFor10OrgsWithGreatestAnnualTurnover();
+    }
+
+    @PostMapping(value = "/import", consumes = "multipart/form-data")
+    public ResponseEntity<ImportResult> importOrganizations(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ImportResult(false, 0,
+                List.of(new RowError(0, "File is empty"))));
+        }
+
+        try (InputStream is = file.getInputStream()) {
+            ImportResult result = importService.importOrganizations(is);
+            return ResponseEntity.ok(result);
+        } catch (ImportValidationException ex) {
+            ImportResult result = new ImportResult(
+                false,
+                0,
+                ex.getErrors());
+            return ResponseEntity.badRequest().body(result);
+        } catch (IOException ex) {
+            ImportResult result = new ImportResult(
+                false,
+                0,
+                List.of(new RowError(0, "Failed to read file: " + ex.getMessage())));
+            return ResponseEntity.internalServerError().body(result);
+        }
     }
 }
 

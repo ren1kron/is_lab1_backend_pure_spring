@@ -6,15 +6,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
+
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "organizations")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "organizations")
 public class Organization {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "org_seq")
@@ -24,6 +26,7 @@ public class Organization {
                         // уникальным, Значение этого поля должно генерироваться автоматически
 
     @NotBlank
+    @Size(max = 63)
     @Column(name = "name", nullable = false)
     private String name; // Поле не может быть null, Строка не может быть пустой
 

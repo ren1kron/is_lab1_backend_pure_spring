@@ -27,12 +27,8 @@ public class OrganizationService {
     private final AddressRepo addrRepo;
     private final LocationRepo locRepo;
 
+    private final OrgMapper orgMapper;
     private final OrgSpecFactory orgSpecFactory;
-
-    @Transactional(readOnly = true)
-    public List<Organization> getAll() {
-        return orgRepo.findAll();
-    }
 
     @Transactional(readOnly = true)
     public Organization getById(int id) {
@@ -89,7 +85,7 @@ public class OrganizationService {
 
     @Transactional
     public Organization create(OrgCreateDTO dto) {
-        var org = dtoToOrg(dto);
+        var org = orgMapper.dtoToOrg(dto);
         return orgRepo.save(org);
     }
 
@@ -98,7 +94,7 @@ public class OrganizationService {
         Organization org = orgRepo.findById(id)
             .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
 
-        dtoToOrg(dto, org);
+        orgMapper.dtoToOrg(dto, org);
         return orgRepo.save(org);
     }
 
@@ -115,26 +111,5 @@ public class OrganizationService {
         cordRepo.deleteAll();
         addrRepo.deleteAll();
         locRepo.deleteAll();
-    }
-
-    // –––––––––––––––––––––––––––––––––––––––––
-
-    private Organization dtoToOrg(OrgCreateDTO dto) {
-        return dtoToOrg(dto, new Organization());
-    }
-
-    private Organization dtoToOrg(OrgCreateDTO dto, Organization org) {
-        org.setName(dto.name());
-        org.setCoordinates(cordRepo.findById(dto.coordinatesId())
-            .orElseThrow(() -> new NotFoundElementWithIdException("Coordinates", dto.coordinatesId())));
-        org.setOfficialAddress(locRepo.findById(dto.officialAddressId())
-            .orElseThrow(() -> new NotFoundElementWithIdException("Location", dto.officialAddressId())));
-        org.setAnnualTurnover(dto.annualTurnover());
-        org.setEmployeesCount(dto.employeesCount());
-        org.setRating(dto.rating());
-        org.setType(dto.type());
-        org.setPostalAddress(addrRepo.findById(dto.postalAddressId())
-            .orElseThrow(() -> new NotFoundElementWithIdException("Address", dto.postalAddressId())));
-        return org;
     }
 }
