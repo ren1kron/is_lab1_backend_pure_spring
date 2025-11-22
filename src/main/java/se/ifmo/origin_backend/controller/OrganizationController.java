@@ -25,7 +25,7 @@ import se.ifmo.origin_backend.error.RowError;
 import se.ifmo.origin_backend.event.OrgEvent;
 import se.ifmo.origin_backend.model.Organization;
 import se.ifmo.origin_backend.model.OrganizationType;
-import se.ifmo.origin_backend.service.OrgImportService;
+import se.ifmo.origin_backend.service.OrgImportFacade;
 import se.ifmo.origin_backend.service.OrganizationService;
 
 @RestController
@@ -40,7 +40,7 @@ public class OrganizationController {
                         .entry("annualTurnover", "annualTurnover"), Map.entry("type", "type"));
 
     private final OrganizationService service;
-    private final OrgImportService importService;
+    private final OrgImportFacade importService;
     private final ApplicationEventPublisher events;
 
     @PostMapping
@@ -156,7 +156,7 @@ public class OrganizationController {
         }
 
         try (InputStream is = file.getInputStream()) {
-            ImportResult result = importService.importOrganizations(is);
+            ImportResult result = importService.importWithHistory(file.getOriginalFilename(), is);
             return ResponseEntity.ok(result);
         } catch (ImportValidationException ex) {
             ImportResult result = new ImportResult(

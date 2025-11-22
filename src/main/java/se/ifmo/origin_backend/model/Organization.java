@@ -2,12 +2,10 @@ package se.ifmo.origin_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDate;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,6 +52,7 @@ public class Organization {
     private Long employeesCount; // Поле не может быть null, Значение поля должно быть больше 0
 
     @Positive
+    @Max(100)
     @Column(name = "rating")
     private int rating; // Значение поля должно быть больше 0
 

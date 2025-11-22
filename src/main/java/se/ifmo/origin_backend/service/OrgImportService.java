@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.*;
 import se.ifmo.origin_backend.error.ImportValidationException;
 import se.ifmo.origin_backend.error.RowError;
+import se.ifmo.origin_backend.event.OrgBulkEvent;
 import se.ifmo.origin_backend.model.Address;
 import se.ifmo.origin_backend.model.Coordinates;
 import se.ifmo.origin_backend.model.Location;
@@ -31,8 +33,8 @@ public class OrgImportService {
     private final LocationRepo locRepo;
     private final Validator validator;
 
-    private final OrgMapper orgMapper;
     private final ObjectMapper jsonMapper;
+    private final ApplicationEventPublisher events;
 
     @Transactional
     public ImportResult importOrganizations(InputStream jsonStream) throws IOException {
@@ -69,7 +71,12 @@ public class OrgImportService {
             throw new ImportValidationException(errors);
         }
 
-        orgRepo.saveAll(toPersist);
+        List<Organization> saved = orgRepo.saveAll(toPersist);
+
+        List<Integer> ids = saved.stream()
+            .map(Organization::getId)
+            .toList();
+        events.publishEvent(new OrgBulkEvent("IMPORTED", ids));
 
         return new ImportResult(toPersist.size());
     }
