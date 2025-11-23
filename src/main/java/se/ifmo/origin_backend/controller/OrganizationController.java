@@ -36,8 +36,9 @@ public class OrganizationController {
         Map.ofEntries(Map.entry("name", "name"), Map.entry("employeesCount", "employeesCount"), Map.entry("rating", "rating"), Map
             .entry("coordinatesX", "coordinates.x"), Map.entry("coordinatesY", "coordinates.y"), Map
                 .entry("officialAddressX", "officialAddress.x"), Map.entry("officialAddressY", "officialAddress.y"), Map
-                    .entry("officialAddressZ", "officialAddress.z"), Map.entry("postalStreet", "postalAddress.street"), Map
-                        .entry("annualTurnover", "annualTurnover"), Map.entry("type", "type"));
+                    .entry("officialAddressZ", "officialAddress.z"), Map.entry("officialName", "officialAddress.name"), Map
+                        .entry("postalStreet", "postalAddress.street"), Map
+                            .entry("annualTurnover", "annualTurnover"), Map.entry("type", "type"));
 
     private final OrganizationService service;
     private final OrgImportFacade importService;
