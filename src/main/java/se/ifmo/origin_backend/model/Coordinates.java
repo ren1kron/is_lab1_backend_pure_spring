@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 public class Coordinates {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "coord_seq")
-    @SequenceGenerator(name = "coord_seq", sequenceName = "coord_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cord_seq_gen")
+    @SequenceGenerator(name = "cord_seq_gen", sequenceName = "cord_id_seq", initialValue = 1, allocationSize = 50)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 

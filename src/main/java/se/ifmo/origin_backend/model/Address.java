@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
     columnNames = {"street"}))
 public class Address {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addr_seq")
-    @SequenceGenerator(name = "addr_seq", sequenceName = "addr_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addr_seq_gen")
+    @SequenceGenerator(name = "addr_seq_gen", sequenceName = "addr_id_seq", initialValue = 1, allocationSize = 50)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 

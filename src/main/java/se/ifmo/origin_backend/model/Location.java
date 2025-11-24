@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 public class Location {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "loc_seq")
-    @SequenceGenerator(name = "loc_seq", sequenceName = "loc_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "loc_seq_gen")
+    @SequenceGenerator(name = "loc_seq_gen", sequenceName = "loc_id_seq", initialValue = 1, allocationSize = 50)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 

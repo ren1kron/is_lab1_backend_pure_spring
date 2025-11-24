@@ -17,8 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Organization {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "org_seq")
-    @SequenceGenerator(name = "org_seq", sequenceName = "org_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "org_seq_gen")
+    @SequenceGenerator(name = "org_seq_gen", sequenceName = "org_id_seq", initialValue = 1, allocationSize = 50)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id; // Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть
                         // уникальным, Значение этого поля должно генерироваться автоматически
