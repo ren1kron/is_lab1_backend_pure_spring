@@ -28,12 +28,12 @@ public class AddressService {
 
     @Transactional
     public Address create(AddressDTO dto) {
-        var addr = new Address(null, dto.street());
-        try {
-            return repo.saveAndFlush(addr);
-        } catch (org.springframework.orm.jpa.JpaSystemException ex) {
+        if (repo.existsByStreet(dto.street())) {
             throw new DuplicateAddressException(dto.street());
         }
+
+        var addr = new Address(null, dto.street());
+        return repo.save(addr);
     }
 
     @Transactional
