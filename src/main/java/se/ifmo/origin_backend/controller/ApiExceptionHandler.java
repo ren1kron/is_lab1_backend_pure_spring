@@ -1,14 +1,17 @@
 package se.ifmo.origin_backend.controller;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import se.ifmo.origin_backend.error.DuplicateException;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
@@ -51,14 +54,54 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(TransactionSystemException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ProblemDetail> handleTx(TransactionSystemException ex) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Deletion not allowed");
-        pd.setDetail(ex.getMessage());
-        pd.setProperty("code", "FK_CONSTRAINT");
+        if (hasCause(ex, OptimisticLockException.class)
+            || hasCause(ex, ObjectOptimisticLockingFailureException.class)) {
+            return buildProblem(
+                HttpStatus.CONFLICT,
+                "Concurrent modification",
+                "Organization was updated or deleted by another transaction.",
+                "CONCURRENT_MODIFICATION");
+        }
+        if (hasCause(ex, EntityNotFoundException.class)) {
+            return buildProblem(
+                HttpStatus.NOT_FOUND,
+                "Not found",
+                "Organization no longer exists.",
+                "NOT_FOUND");
+        }
+        if (hasCause(ex, SQLIntegrityConstraintViolationException.class)) {
+            return buildProblem(
+                HttpStatus.BAD_REQUEST,
+                "Constraint violation",
+                "Operation violates a database constraint.",
+                "DB_CONSTRAINT");
+        }
+        return buildProblem(
+            HttpStatus.BAD_REQUEST,
+            "Transaction failed",
+            "Could not commit transaction.",
+            "TX_FAILED");
+    }
 
+    private static ResponseEntity<ProblemDetail> buildProblem(
+        HttpStatus status,
+        String title,
+        String detail,
+        String code) {
+        ProblemDetail pd = ProblemDetail.forStatus(status);
+        pd.setTitle(title);
+        pd.setDetail(detail);
+        pd.setProperty("code", code);
+        return ResponseEntity.status(status).body(pd);
+    }
 
-        return ResponseEntity.badRequest().body(pd);
+    private static boolean hasCause(Throwable ex, Class<? extends Throwable> type) {
+        for (Throwable t = ex; t != null; t = t.getCause()) {
+            if (type.isInstance(t)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

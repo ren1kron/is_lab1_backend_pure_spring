@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "locations", uniqueConstraints = @UniqueConstraint(name = "uk_locs_xyz_name", columnNames = {"x", "y", "z", "name"}))
+@Table(name = "locations")
 public class Location {
 
     @Id

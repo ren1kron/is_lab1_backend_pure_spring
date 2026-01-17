@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "addresses", uniqueConstraints = @UniqueConstraint(name = "uk_address_street",
-    columnNames = {"street"}))
+@Table(name = "addresses")
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "addr_seq_gen")

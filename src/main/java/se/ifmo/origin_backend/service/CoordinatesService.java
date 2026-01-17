@@ -3,6 +3,7 @@ package se.ifmo.origin_backend.service;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.CoordinatesDTO;
 import se.ifmo.origin_backend.error.DuplicateCoordinatesException;
@@ -26,31 +27,29 @@ public class CoordinatesService {
             .orElseThrow(() -> new NotFoundElementWithIdException("Coordinates", id));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Coordinates create(CoordinatesDTO dto) {
-        var cords = new Coordinates(null, dto.x(), dto.y());
-        try {
-            return repo.saveAndFlush(cords);
-        } catch (org.springframework.orm.jpa.JpaSystemException ex) {
+        if (repo.existsByXAndY(dto.x(), dto.y())) {
             throw new DuplicateCoordinatesException(dto.x(), dto.y());
         }
+        var cords = new Coordinates(null, dto.x(), dto.y());
+        return repo.save(cords);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Coordinates update(long id, CoordinatesDTO dto) {
         var cords = repo.findById(id)
             .orElseThrow(() -> new NotFoundElementWithIdException("Coordinates", id));
 
-        cords.setX(dto.x());
-        cords.setY(dto.y());
-        try {
-            return repo.saveAndFlush(cords);
-        } catch (org.springframework.orm.jpa.JpaSystemException ex) {
+        if (repo.existsByXAndYAndIdNot(dto.x(), dto.y(), id)) {
             throw new DuplicateCoordinatesException(dto.x(), dto.y());
         }
+        cords.setX(dto.x());
+        cords.setY(dto.y());
+        return repo.save(cords);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void delete(Long id) {
         if (repo.findById(id).isEmpty())
             throw new NotFoundElementWithIdException("Coordinates", id);

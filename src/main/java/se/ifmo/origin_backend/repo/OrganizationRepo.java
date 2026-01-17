@@ -20,4 +20,8 @@ public interface OrganizationRepo extends JpaRepository<Organization, Integer>, 
     List<OrganizationType> findDistinctTypes();
 
     List<Organization> findAllByOrderByAnnualTurnoverDesc(Pageable pageable);
+
+    boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Integer id);
 }

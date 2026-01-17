@@ -13,4 +13,6 @@ public interface AddressRepo extends JpaRepository<Address, Long>, JpaSpecificat
     Optional<Address> findByStreet(String street);
 
     boolean existsByStreet(@Size(max = 63) String street);
+
+    boolean existsByStreetAndIdNot(@Size(max = 63) String street, Long id);
 }

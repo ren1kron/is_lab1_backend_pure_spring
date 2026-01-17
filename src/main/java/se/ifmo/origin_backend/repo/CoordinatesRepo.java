@@ -10,4 +10,8 @@ import java.util.Optional;
 @Repository
 public interface CoordinatesRepo extends JpaRepository<Coordinates, Long>, JpaSpecificationExecutor<Coordinates> {
     Optional<Coordinates> findCoordinatesByXAndY(Long x, Long y);
+
+    boolean existsByXAndY(Long x, Long y);
+
+    boolean existsByXAndYAndIdNot(Long x, Long y, Long id);
 }

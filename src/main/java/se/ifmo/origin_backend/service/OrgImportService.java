@@ -6,8 +6,10 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.*;
+import se.ifmo.origin_backend.error.DuplicateOrganizationException;
 import se.ifmo.origin_backend.error.ImportValidationException;
 import se.ifmo.origin_backend.error.RowError;
 import se.ifmo.origin_backend.event.OrgBulkEvent;
@@ -36,12 +38,13 @@ public class OrgImportService {
     private final ObjectMapper jsonMapper;
     private final ApplicationEventPublisher events;
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public ImportResult importOrganizations(InputStream jsonStream) throws IOException {
         List<OrgImportDTO> dtos = readJson(jsonStream);
 
         List<RowError> errors = new ArrayList<>();
         List<Organization> toPersist = new ArrayList<>();
+        Set<String> orgNameCache = new HashSet<>();
 
         // per-import caches
         Map<LocationDTO, Location> locCache = new HashMap<>();
@@ -58,7 +61,13 @@ public class OrgImportService {
             }
 
             try {
+                if (orgRepo.existsByName(dto.name())) {
+                    throw new DuplicateOrganizationException(dto.name());
+                }
                 Organization org = rowToOrg(dto, locCache, addrCache, cordCache);
+                if (!orgNameCache.add(dto.name())) {
+                    throw new DuplicateOrganizationException(dto.name());
+                }
                 toPersist.add(org);
             } catch (RuntimeException ex) {
                 errors.add(new RowError(rowNum, ex.getMessage()));

@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "coordinates", uniqueConstraints = @UniqueConstraint(name = "uk_coords_xy",
-    columnNames = {"x", "y"}))
+@Table(name = "coordinates")
 public class Coordinates {
 
     @Id

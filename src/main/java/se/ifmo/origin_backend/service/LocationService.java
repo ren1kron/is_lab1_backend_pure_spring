@@ -3,6 +3,7 @@ package se.ifmo.origin_backend.service;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.LocationDTO;
 import se.ifmo.origin_backend.error.DuplicateLocationException;
@@ -26,34 +27,32 @@ public class LocationService {
             .orElseThrow(() -> new NotFoundElementWithIdException("Location", id));
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Location create(LocationDTO dto) {
-        var loc = new Location(null, dto.x(), dto.y(), dto.z(), dto.name());
-        try {
-            return repo.saveAndFlush(loc);
-        } catch (org.springframework.orm.jpa.JpaSystemException ex) {
+        if (repo.existsByXAndYAndZAndName(dto.x(), dto.y(), dto.z(), dto.name())) {
             throw new DuplicateLocationException(dto);
         }
+        var loc = new Location(null, dto.x(), dto.y(), dto.z(), dto.name());
+        return repo.save(loc);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Location update(Long id, LocationDTO dto) {
         var loc = repo.findById(id)
             .orElseThrow(() -> new NotFoundElementWithIdException("Location", id));
 
+        if (repo.existsByXAndYAndZAndNameAndIdNot(dto.x(), dto.y(), dto.z(), dto.name(), id)) {
+            throw new DuplicateLocationException(dto);
+        }
         loc.setX(dto.x());
         loc.setY(dto.y());
         loc.setZ(dto.z());
         loc.setName(dto.name());
 
-        try {
-            return repo.saveAndFlush(loc);
-        } catch (org.springframework.orm.jpa.JpaSystemException ex) {
-            throw new DuplicateLocationException(dto);
-        }
+        return repo.save(loc);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void delete(Long id) {
         if (repo.findById(id).isEmpty())
             throw new NotFoundElementWithIdException("Location", id);

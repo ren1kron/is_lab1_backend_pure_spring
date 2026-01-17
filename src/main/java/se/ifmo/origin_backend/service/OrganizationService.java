@@ -8,8 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import se.ifmo.origin_backend.dto.*;
+import se.ifmo.origin_backend.error.DuplicateOrganizationException;
 import se.ifmo.origin_backend.error.NotFoundElementWithIdException;
 import se.ifmo.origin_backend.model.Organization;
 import se.ifmo.origin_backend.model.OrganizationType;
@@ -83,29 +85,35 @@ public class OrganizationService {
         return avg;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Organization create(OrgCreateDTO dto) {
+        if (orgRepo.existsByName(dto.name())) {
+            throw new DuplicateOrganizationException(dto.name());
+        }
         var org = orgMapper.dtoToOrg(dto);
         return orgRepo.save(org);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Organization update(int id, OrgCreateDTO dto) {
         Organization org = orgRepo.findById(id)
             .orElseThrow(() -> new NotFoundElementWithIdException("Organization", id));
 
+        if (orgRepo.existsByNameAndIdNot(dto.name(), id)) {
+            throw new DuplicateOrganizationException(dto.name());
+        }
         orgMapper.dtoToOrg(dto, org);
         return orgRepo.save(org);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void delete(int id) {
         if (orgRepo.findById(id).isEmpty())
             throw new NotFoundElementWithIdException("Organization", id);
         orgRepo.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void clear() {
         orgRepo.deleteAll();
         cordRepo.deleteAll();
