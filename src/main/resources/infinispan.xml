@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan xmlns="urn:infinispan:config:15.0">
+    <cache-container>
+        <serialization marshaller="org.infinispan.commons.marshall.JavaSerializationMarshaller">
+            <allow-list>
+                <regex>java\..*</regex>
+                <regex>org\.hibernate\..*</regex>
+                <regex>se\.ifmo\.origin_backend\..*</regex>
+            </allow-list>
+        </serialization>
+    </cache-container>
+</infinispan>

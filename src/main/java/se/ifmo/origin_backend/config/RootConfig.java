@@ -21,6 +21,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -34,6 +35,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Slf4j
 @Configuration
 @EnableWebMvc
+@EnableAspectJAutoProxy
 @ComponentScan(basePackages = "se.ifmo.origin_backend")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "se.ifmo.origin_backend.repo")
@@ -82,11 +84,13 @@ public class RootConfig implements WebMvcConfigurer {
         jpa.put("hibernate.cache.use_second_level_cache",
             env.getProperty("hibernate.cache.use_second_level_cache", "true"));
         jpa.put("hibernate.cache.use_query_cache", env.getProperty("hibernate.cache.use_query_cache", "false"));
+        jpa.put("hibernate.generate_statistics", env.getProperty("hibernate.generate_statistics", "true"));
         jpa.put("hibernate.cache.region.factory_class",
             env.getProperty("hibernate.cache.region.factory_class",
                 "org.hibernate.cache.jcache.JCacheRegionFactory"));
         jpa.put("hibernate.javax.cache.provider",
-            env.getProperty("hibernate.javax.cache.provider", "org.infinispan.jcache.embedded.JCacheProvider"));
+            env.getProperty("hibernate.javax.cache.provider", "org.infinispan.jcache.embedded.JCachingProvider"));
+        jpa.put("hibernate.javax.cache.uri", env.getProperty("hibernate.javax.cache.uri", "infinispan.xml"));
         jpa.put("hibernate.javax.cache.missing_cache_strategy",
             env.getProperty("hibernate.javax.cache.missing_cache_strategy", "create"));
         jpa.put("jakarta.persistence.validation.mode",

@@ -44,6 +44,7 @@ dependencies {
     // Spring MVC & Core
     implementation("org.springframework:spring-webmvc:6.2.11")
     implementation("org.springframework:spring-context:6.2.11")
+    implementation("org.springframework:spring-aop:6.2.11")
     implementation("org.springframework:spring-tx:6.2.11")
     implementation("org.springframework:spring-orm:6.2.11")
     implementation("org.springframework.security:spring-security-core:6.5.5")
@@ -65,6 +66,7 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-jcache:6.6.0.Final")
     implementation("org.hibernate.validator:hibernate-validator:9.0.1.Final")
     implementation("org.infinispan:infinispan-jcache:15.0.11.Final")
+    implementation("org.aspectj:aspectjweaver:1.9.22.1")
 
     // JDBC + HikariCP (or your pool)
     implementation("com.zaxxer:HikariCP:7.0.2")
