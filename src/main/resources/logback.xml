@@ -56,8 +56,8 @@
     <!-- DB / pool -->
     <logger name="com.zaxxer.hikari" level="INFO"/>
 
-    <!-- EclipseLink (uses JUL under the hood, bridge recommended) -->
-    <logger name="org.eclipse.persistence" level="WARN"/>
+    <!-- Hibernate -->
+    <logger name="org.hibernate" level="WARN"/>
 
     <!-- Root -->
     <!-- In dev: console only; in prod, you might switch to ASYNC_FILE or both. -->

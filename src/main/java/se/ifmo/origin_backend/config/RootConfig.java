@@ -8,7 +8,6 @@ import java.util.Properties;
 import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -21,7 +20,7 @@ import org.springframework.dao.annotation.PersistenceExceptionTranslationPostPro
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -64,25 +63,24 @@ public class RootConfig implements WebMvcConfigurer {
 
     @Bean(name = "entityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(DataSource ds) {
-        var vendor = new EclipseLinkJpaVendorAdapter();
+        var vendor = new HibernateJpaVendorAdapter();
         vendor.setGenerateDdl(true);
-        vendor.setShowSql(true);
+        vendor.setShowSql(env.getProperty("hibernate.show_sql", Boolean.class, false));
+        vendor.setDatabasePlatform(env.getProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect"));
 
         var em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(ds);
         em.setJpaVendorAdapter(vendor);
+        em.setEntityManagerFactoryInterface(EntityManagerFactory.class);
         em.setPackagesToScan("se.ifmo.origin_backend");
 
         Properties jpa = new Properties();
-        jpa.put(PersistenceUnitProperties.WEAVING, env.getProperty("jpa.weaving", "false"));
-        jpa.put(PersistenceUnitProperties.DDL_GENERATION, env
-            .getProperty("jpa.ddl.generation", "create-or-extend-tables"));
-        jpa.put(PersistenceUnitProperties.LOGGING_LEVEL, env
-            .getProperty("jpa.logging.level", "FINE"));
-        jpa.put(PersistenceUnitProperties.DDL_GENERATION_MODE, env
-            .getProperty("jpa.ddl.generation_output_mode", "database"));
-        jpa.put(PersistenceUnitProperties.VALIDATION_MODE, "CALLBACK");
-        jpa.put(PersistenceUnitProperties.TARGET_DATABASE, "org.eclipse.persistence.platform.database.PostgreSQLPlatform");
+        jpa.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto", "update"));
+        jpa.put("hibernate.show_sql", env.getProperty("hibernate.show_sql", "false"));
+        jpa.put("hibernate.format_sql", env.getProperty("hibernate.format_sql", "false"));
+        jpa.put("hibernate.dialect", env.getProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect"));
+        jpa.put("jakarta.persistence.validation.mode",
+            env.getProperty("jakarta.persistence.validation.mode", "CALLBACK"));
         em.setJpaProperties(jpa);
 
         return em;

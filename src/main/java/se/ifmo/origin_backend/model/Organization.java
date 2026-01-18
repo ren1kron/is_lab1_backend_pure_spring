@@ -61,7 +61,7 @@ public class Organization {
     private OrganizationType type; // Поле может быть null
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "postal_addr_id", nullable = false)
     private Address postalAddress; // Поле не может быть null
 

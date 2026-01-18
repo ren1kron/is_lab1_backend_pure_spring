@@ -28,7 +28,7 @@ spotless {
 
 group = "se.ifmo"
 version = "0.0.1-SNAPSHOT"
-description = "API для простого веб-приложения на Spring MVC + Eclipse Link"
+description = "API для простого веб-приложения на Spring MVC + Hibernate"
 
 java {
     toolchain {
@@ -58,10 +58,10 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0") // <-- Java time
     implementation("com.fasterxml.jackson.module:jackson-module-parameter-names:2.20.0") // nice-to-have for records
 
-    // JPA + EclipseLink
+    // JPA + Hibernate
     implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
-    implementation("org.eclipse.persistence:org.eclipse.persistence.jpa:4.0.8") // EclipseLink
+    implementation("org.hibernate.orm:hibernate-core:6.6.0.Final")
     implementation("org.hibernate.validator:hibernate-validator:9.0.1.Final")
 
     // JDBC + HikariCP (or your pool)
