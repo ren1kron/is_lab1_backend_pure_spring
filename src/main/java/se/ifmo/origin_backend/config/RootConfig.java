@@ -79,6 +79,16 @@ public class RootConfig implements WebMvcConfigurer {
         jpa.put("hibernate.show_sql", env.getProperty("hibernate.show_sql", "false"));
         jpa.put("hibernate.format_sql", env.getProperty("hibernate.format_sql", "false"));
         jpa.put("hibernate.dialect", env.getProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect"));
+        jpa.put("hibernate.cache.use_second_level_cache",
+            env.getProperty("hibernate.cache.use_second_level_cache", "true"));
+        jpa.put("hibernate.cache.use_query_cache", env.getProperty("hibernate.cache.use_query_cache", "false"));
+        jpa.put("hibernate.cache.region.factory_class",
+            env.getProperty("hibernate.cache.region.factory_class",
+                "org.hibernate.cache.jcache.JCacheRegionFactory"));
+        jpa.put("hibernate.javax.cache.provider",
+            env.getProperty("hibernate.javax.cache.provider", "org.infinispan.jcache.embedded.JCacheProvider"));
+        jpa.put("hibernate.javax.cache.missing_cache_strategy",
+            env.getProperty("hibernate.javax.cache.missing_cache_strategy", "create"));
         jpa.put("jakarta.persistence.validation.mode",
             env.getProperty("jakarta.persistence.validation.mode", "CALLBACK"));
         em.setJpaProperties(jpa);

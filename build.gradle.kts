@@ -62,7 +62,9 @@ dependencies {
     implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.hibernate.orm:hibernate-core:6.6.0.Final")
+    implementation("org.hibernate.orm:hibernate-jcache:6.6.0.Final")
     implementation("org.hibernate.validator:hibernate-validator:9.0.1.Final")
+    implementation("org.infinispan:infinispan-jcache:15.0.11.Final")
 
     // JDBC + HikariCP (or your pool)
     implementation("com.zaxxer:HikariCP:7.0.2")
