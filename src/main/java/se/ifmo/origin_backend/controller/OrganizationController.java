@@ -1,7 +1,6 @@
 package se.ifmo.origin_backend.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -156,8 +155,8 @@ public class OrganizationController {
                 List.of(new RowError(0, "File is empty"))));
         }
 
-        try (InputStream is = file.getInputStream()) {
-            ImportResult result = importService.importWithHistory(file.getOriginalFilename(), is);
+        try {
+            ImportResult result = importService.importWithHistory(file);
             return ResponseEntity.ok(result);
         } catch (ImportValidationException ex) {
             ImportResult result = new ImportResult(
@@ -171,7 +170,12 @@ public class OrganizationController {
                 0,
                 List.of(new RowError(0, "Failed to read file: " + ex.getMessage())));
             return ResponseEntity.internalServerError().body(result);
+        } catch (Exception ex) {
+            ImportResult result = new ImportResult(
+                false,
+                0,
+                List.of(new RowError(0, "Import failed: " + ex.getMessage())));
+            return ResponseEntity.internalServerError().body(result);
         }
     }
 }
-

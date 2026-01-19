@@ -10,4 +10,7 @@ public record ImportOperationDTO(
     Integer createdCount,
     String fileName,
     Instant startedAt,
-    Instant finishedAt) {}
+    Instant finishedAt,
+    String fileDownloadUrl,
+    Long fileSize,
+    String fileContentType) {}

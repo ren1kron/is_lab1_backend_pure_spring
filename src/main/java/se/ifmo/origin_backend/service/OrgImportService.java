@@ -21,6 +21,8 @@ import se.ifmo.origin_backend.repo.AddressRepo;
 import se.ifmo.origin_backend.repo.CoordinatesRepo;
 import se.ifmo.origin_backend.repo.LocationRepo;
 import se.ifmo.origin_backend.repo.OrganizationRepo;
+import se.ifmo.origin_backend.storage.ObjectStorageService;
+import se.ifmo.origin_backend.storage.PreparedImportFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,12 +36,17 @@ public class OrgImportService {
     private final AddressRepo addrRepo;
     private final LocationRepo locRepo;
     private final Validator validator;
+    private final ObjectStorageService storageService;
 
     private final ObjectMapper jsonMapper;
     private final ApplicationEventPublisher events;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public ImportResult importOrganizations(InputStream jsonStream) throws IOException {
+    public ImportResult importOrganizations(InputStream jsonStream, PreparedImportFile preparedFile) throws IOException {
+        if (preparedFile != null) {
+            // Tie object storage commit/rollback to the DB transaction.
+            storageService.registerTxSynchronization(preparedFile);
+        }
         List<OrgImportDTO> dtos = readJson(jsonStream);
 
         List<RowError> errors = new ArrayList<>();

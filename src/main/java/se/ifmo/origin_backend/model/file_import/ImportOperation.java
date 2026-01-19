@@ -34,6 +34,15 @@ public class ImportOperation {
     @Column(name = "file_name")
     private String fileName;
 
+    @Column(name = "file_object_key", length = 512)
+    private String fileObjectKey;
+
+    @Column(name = "file_content_type", length = 255)
+    private String fileContentType;
+
+    @Column(name = "file_size")
+    private Long fileSize;
+
     @Column(name = "started_at", nullable = false, updatable = false)
     private Instant startedAt;
 

@@ -34,10 +34,13 @@ public class ImportHistoryService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void markSuccess(Long id, int createdCount) {
+    public void markSuccess(Long id, int createdCount, String fileObjectKey, long fileSize, String contentType) {
         ImportOperation op = repo.findById(id).orElseThrow();
         op.setStatus(ImportStatus.SUCCESS);
         op.setCreatedCount(createdCount);
+        op.setFileObjectKey(fileObjectKey);
+        op.setFileSize(fileSize);
+        op.setFileContentType(contentType);
         op.setFinishedAt(Instant.now());
 
         events.publishEvent(new ImportOpEvent(

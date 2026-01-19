@@ -67,6 +67,7 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:9.0.1.Final")
     implementation("org.infinispan:infinispan-jcache:15.0.11.Final")
     implementation("org.aspectj:aspectjweaver:1.9.22.1")
+    implementation("io.minio:minio:8.5.12")
 
     // JDBC + HikariCP (or your pool)
     implementation("com.zaxxer:HikariCP:7.0.2")

@@ -39,12 +39,18 @@ public class ImportOperationListingService {
     }
 
     private ImportOperationDTO toDto(ImportOperation op) {
+        String downloadUrl = op.getFileObjectKey() == null
+            ? null
+            : "/api/imports/" + op.getId() + "/file";
         return new ImportOperationDTO(
             op.getId(),
             op.getStatus(),
             op.getCreatedCount(),
             op.getFileName(),
             op.getStartedAt(),
-            op.getFinishedAt());
+            op.getFinishedAt(),
+            downloadUrl,
+            op.getFileSize(),
+            op.getFileContentType());
     }
 }
